@@ -1,0 +1,248 @@
+Quero que você desenvolva uma aplicação desktop completa em Python 3 utilizando PyQt5 para criar um editor visual de diagramas hierárquicos baseados em grafos direcionados com navegação por subdiagramas via arquivos vinculados.
+
+O objetivo NÃO é criar um editor UML tradicional nem um fluxograma simples, mas sim um sistema de modelagem estrutural onde cada bloco pode representar uma unidade lógica que pode conter outro diagrama em arquivo separado (Hierarchical Diagram via Linked Subgraphs).
+
+============================================================
+ARQUITETURA GERAL
+============================================================
+
+A aplicação deve permitir:
+
+- Criar, editar e salvar múltiplos arquivos com extensão customizada ".diagram"
+- Cada arquivo representa um diagrama independente
+- Navegação entre diagramas por meio de blocos que possuem link para outro arquivo
+- Navegação deve funcionar como pilha (stack) com botão "Voltar"
+- Layout totalmente manual (NÃO usar layout automático)
+- Sistema robusto de conexões com nós intermediários
+- Rotação de blocos em múltiplos de 90 graus ilimitadamente
+- Sistema de portas (inputs/outputs) explícitas
+
+============================================================
+ESTRUTURA DE UM ARQUIVO .diagram
+============================================================
+
+Cada arquivo deve ser salvo em formato JSON com estrutura:
+
+{
+  "title": "Nome do Diagrama",
+  "summary": "Resumo do diagrama",
+  "nodes": [...],
+  "edges": [...]
+}
+
+Cada node:
+
+{
+  "id": "uuid",
+  "type": "normal | merge | start | end",
+  "title": "Nome do bloco",
+  "summary": "Resumo do bloco",
+  "inputs": ["in1", "in2"],
+  "outputs": ["out1"],
+  "subdiagram": "relative/path/file.diagram" ou null,
+  "position": [x, y],
+  "rotation": 0 | 90 | 180 | 270
+}
+
+Cada edge:
+
+{
+  "source_node_id": "...",
+  "source_output_index": 0,
+  "target_node_id": "...",
+  "target_input_index": 0,
+  "points": [[x1,y1],[x2,y2],...]
+}
+
+O campo points representa nós intermediários da conexão.
+
+============================================================
+INTERFACE PRINCIPAL
+============================================================
+
+A janela principal deve conter:
+
+- Barra superior com:
+  - Botão Novo
+  - Botão Abrir
+  - Botão Salvar
+  - Botão Voltar
+  - Breadcrumb de navegação mostrando caminho hierárquico
+
+- Área superior textual contendo:
+  - QLabel grande com título do diagrama
+  - QLabel menor com resumo do diagrama
+  - Botão para editar título e resumo
+
+- Área central:
+  - QGraphicsView
+  - QGraphicsScene
+  - Zoom com roda do mouse
+  - Pan com botão do meio
+  - Seleção múltipla
+  - Grid opcional
+
+============================================================
+TIPOS DE BLOCO
+============================================================
+
+1) BLOCO NORMAL
+
+- 1 entrada e 1 saída por padrão
+- Pode adicionar/remover entradas via menu
+- Pode adicionar/remover saídas via menu
+- Pode editar título
+- Pode editar resumo
+- Pode criar subdiagrama
+- Pode abrir subdiagrama se existir
+- Pode ter rotação
+- Pode ser movido manualmente
+
+Context menu:
+
+- Editar título/resumo
+- Adicionar entrada
+- Remover entrada
+- Adicionar saída
+- Remover saída
+- Criar subdiagrama
+- Abrir subdiagrama
+- Rotacionar 90°
+- Deletar
+
+2) BLOCO MERGE
+
+- Múltiplas entradas permitidas
+- Sempre 1 única saída
+- Não pode ter subdiagrama
+- Não pode remover a saída
+- Não pode mudar tipo
+- Rotação permitida
+- Context menu:
+  - Adicionar entrada
+  - Remover entrada
+  - Rotacionar 90°
+  - Deletar
+
+3) BLOCO START (Entrada)
+
+- 0 entradas
+- 1 saída
+- Forma visual distinta
+- Não pode adicionar entradas
+- Não pode ter subdiagrama
+- Context menu:
+  - Editar título
+  - Rotacionar 90°
+  - Deletar
+
+4) BLOCO END (Saída)
+
+- 1 entrada
+- 0 saídas
+- Forma visual distinta
+- Não pode adicionar saídas
+- Não pode ter subdiagrama
+- Context menu:
+  - Editar título
+  - Rotacionar 90°
+  - Deletar
+
+============================================================
+PORTAS (INPUTS / OUTPUTS)
+============================================================
+
+- Cada entrada e saída deve ser visualmente representada
+- Devem se mover corretamente ao rotacionar bloco
+- Conexões devem prender na porta específica
+- Deve ser possível múltiplas conexões por porta
+
+============================================================
+CONEXÕES
+============================================================
+
+- Conexões devem ser desenhadas como linhas ortogonais (horizontal/vertical)
+- Devem permitir múltiplos pontos intermediários
+- Usuário pode:
+  - Clicar na conexão para inserir novo ponto
+  - Arrastar ponto intermediário
+  - Remover ponto intermediário
+- Conexões NÃO devem recalcular automaticamente
+- Usuário controla completamente o traçado
+- Objetivo: evitar passar por cima de blocos manualmente
+- Atualizar dinamicamente quando bloco se move
+
+============================================================
+ROTAÇÃO
+============================================================
+
+- Rotação de 90° por clique
+- Rotação acumulativa infinita (0,90,180,270,360=0,...)
+- Portas devem reposicionar corretamente
+- Bounding box deve atualizar corretamente
+
+============================================================
+NAVEGAÇÃO ENTRE DIAGRAMAS
+============================================================
+
+- Se bloco normal possuir subdiagram:
+  - "Abrir diagrama" carrega outro arquivo
+- Se não possuir:
+  - "Criar subdiagrama" cria arquivo novo
+- Caminho salvo relativo ao projeto
+- Implementar pilha de navegação
+- Botão Voltar restaura diagrama anterior
+
+============================================================
+COMPORTAMENTO VISUAL
+============================================================
+
+- Layout 100% manual
+- Sem auto-layout
+- Usuário organiza visualmente
+- Objetos movíveis livremente
+- Snap opcional à grid
+
+============================================================
+ARQUITETURA INTERNA SUGERIDA
+============================================================
+
+Classes:
+
+- Diagram
+- Node (base)
+- FunctionNode
+- MergeNode
+- StartNode
+- EndNode
+- Edge
+- GraphicsNodeItem (QGraphicsItem custom)
+- GraphicsEdgeItem (QGraphicsPathItem custom)
+- DiagramScene (QGraphicsScene)
+- MainWindow
+- DiagramSerializer
+- NavigationManager
+
+============================================================
+REGRAS IMPORTANTES
+============================================================
+
+- Apenas blocos normais podem ter subdiagram
+- Merge sempre 1 saída
+- Start sempre 0 entradas
+- End sempre 0 saídas
+- Conexões devem validar compatibilidade
+- IDs únicos via UUID
+- Sistema robusto contra arquivos corrompidos
+- Código modular
+- Separação clara entre modelo (dados) e view (graphics)
+
+============================================================
+OBJETIVO FINAL
+============================================================
+
+Criar um editor de grafos hierárquico manual, com navegação entre subdiagramas por link de arquivo, rotação arbitrária em múltiplos de 90 graus, conexões editáveis com nós intermediários, controle visual completo pelo usuário e arquitetura escalável.
+
+Não simplificar.
+Não remover funcionalidades.
+Implementar estrutura completa.
