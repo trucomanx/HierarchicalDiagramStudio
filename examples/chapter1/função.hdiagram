@@ -1,0 +1,187 @@
+{
+  "title": "Função — Subdiagrama",
+  "summary": "Subdiagrama de 'Função'",
+  "nodes": [
+    {
+      "id": "7f2c2087-e4d0-4a09-ba95-e69487b5be95",
+      "type": "start",
+      "title": "Início",
+      "summary": "",
+      "inputs": [],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        100.0,
+        200.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "bc007c16-00b0-4e8f-8e28-92fc47ccae37",
+      "type": "end",
+      "title": "Fim",
+      "summary": "",
+      "inputs": [
+        "in"
+      ],
+      "outputs": [],
+      "subdiagram": null,
+      "position": [
+        1355.0,
+        215.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "7eb6b6e1-d914-4b7e-85d7-0fdd40601321",
+      "type": "normal",
+      "title": "Função",
+      "summary": "",
+      "inputs": [
+        "in"
+      ],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        381.0,
+        207.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "d953e059-0b01-4b4d-bae2-5521851fb6b1",
+      "type": "normal",
+      "title": "Função",
+      "summary": "",
+      "inputs": [
+        "in"
+      ],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        624.0,
+        217.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "306a868b-6b9d-4b6e-b463-c5f570066e40",
+      "type": "normal",
+      "title": "Função",
+      "summary": "",
+      "inputs": [
+        "in"
+      ],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        874.0,
+        86.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "219b2838-df36-4339-a833-e26d201325a4",
+      "type": "normal",
+      "title": "Função",
+      "summary": "",
+      "inputs": [
+        "in"
+      ],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        861.0,
+        339.0
+      ],
+      "rotation": 0
+    },
+    {
+      "id": "fcb5ffaa-a336-47ae-9607-2a00138756b6",
+      "type": "merge",
+      "title": "Merge",
+      "summary": "",
+      "inputs": [
+        "in1",
+        "in2"
+      ],
+      "outputs": [
+        "out"
+      ],
+      "subdiagram": null,
+      "position": [
+        1103.0,
+        239.0
+      ],
+      "rotation": 0
+    }
+  ],
+  "edges": [
+    {
+      "id": "560fae69-eab8-41e3-88ea-ba112f827b30",
+      "source_node_id": "7f2c2087-e4d0-4a09-ba95-e69487b5be95",
+      "source_output_index": 0,
+      "target_node_id": "7eb6b6e1-d914-4b7e-85d7-0fdd40601321",
+      "target_input_index": 0,
+      "points": []
+    },
+    {
+      "id": "4c5ba950-5605-473f-a91d-fb40a9bb9410",
+      "source_node_id": "7eb6b6e1-d914-4b7e-85d7-0fdd40601321",
+      "source_output_index": 0,
+      "target_node_id": "d953e059-0b01-4b4d-bae2-5521851fb6b1",
+      "target_input_index": 0,
+      "points": []
+    },
+    {
+      "id": "7eafe53e-7cb3-4898-87e2-c6bb47af2a22",
+      "source_node_id": "d953e059-0b01-4b4d-bae2-5521851fb6b1",
+      "source_output_index": 0,
+      "target_node_id": "306a868b-6b9d-4b6e-b463-c5f570066e40",
+      "target_input_index": 0,
+      "points": []
+    },
+    {
+      "id": "1fc54ce8-8345-4569-af3c-cb0126c541b3",
+      "source_node_id": "d953e059-0b01-4b4d-bae2-5521851fb6b1",
+      "source_output_index": 0,
+      "target_node_id": "219b2838-df36-4339-a833-e26d201325a4",
+      "target_input_index": 0,
+      "points": []
+    },
+    {
+      "id": "d9b6a848-7701-48fd-836d-9216935758d4",
+      "source_node_id": "306a868b-6b9d-4b6e-b463-c5f570066e40",
+      "source_output_index": 0,
+      "target_node_id": "fcb5ffaa-a336-47ae-9607-2a00138756b6",
+      "target_input_index": 0,
+      "points": []
+    },
+    {
+      "id": "8b515b39-f092-4f7c-9d93-31cfa9ddc2a3",
+      "source_node_id": "219b2838-df36-4339-a833-e26d201325a4",
+      "source_output_index": 0,
+      "target_node_id": "fcb5ffaa-a336-47ae-9607-2a00138756b6",
+      "target_input_index": 1,
+      "points": []
+    },
+    {
+      "id": "29330435-8d3d-4558-859e-05e757f92244",
+      "source_node_id": "fcb5ffaa-a336-47ae-9607-2a00138756b6",
+      "source_output_index": 0,
+      "target_node_id": "bc007c16-00b0-4e8f-8e28-92fc47ccae37",
+      "target_input_index": 0,
+      "points": []
+    }
+  ]
+}

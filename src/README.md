@@ -2,7 +2,7 @@
 
 A desktop application for designing hierarchical graph-based diagrams with linked subdiagrams, manual layout control, and fully customizable node connections.
 
-![logo](screenshot.png)
+![logo](https://raw.githubusercontent.com/trucomanx/HierarchicalDiagramStudio/main/screenshot.png)
 
 ## 1. Installing
 
@@ -24,7 +24,7 @@ hierarchical-diagram-studio
 ```
 ## 2. More information
 
-If you want more information go to [doc](https://github.com/trucomanx/HierarchicalDiagramStudio/blob/main/doc) directory
+If you want more information go to [doc](https://github.com/trucomanx/HierarchicalDiagramStudio/blob/main/doc) directory.
 
 ## 3. Buy me a coffee
 
