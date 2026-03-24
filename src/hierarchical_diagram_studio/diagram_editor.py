@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-"""
-Hierarchical Diagram Editor
-Editor visual de diagramas hierárquicos com navegação por subdiagramas via arquivos vinculados.
-Requires: Python 3.x, PyQt5
-Install: pip install PyQt5
-"""
 
 import sys
 import os
 import json
+import signal
+import subprocess
 import uuid
 import math
 from copy import deepcopy
@@ -26,25 +22,98 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import (
     Qt, QRectF, QPointF, QSizeF, QLineF, QPoint,
-    pyqtSignal, QObject
+    pyqtSignal, QObject, QUrl
 )
 from PyQt5.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QPainterPath,
     QPolygonF, QTransform, QCursor, QPalette, QKeySequence,
-    QLinearGradient, QRadialGradient, QIcon
+    QLinearGradient, QRadialGradient, QIcon, QDesktopServices
 )
 from PyQt5.QtCore import QSize
+
+import hierarchical_diagram_studio.about as about
+import hierarchical_diagram_studio.modules.configure as configure 
+from hierarchical_diagram_studio.modules.resources import resource_path
+
+from hierarchical_diagram_studio.modules.wabout    import show_about_window
+from hierarchical_diagram_studio.desktop import create_desktop_file, create_desktop_directory, create_desktop_menu
+
+
+
+
+# ---------- Path to config file ----------
+CONFIG_PATH = os.path.join( os.path.expanduser("~"),
+                            ".config", 
+                            about.__package__, 
+                            "config.json" )
+
+DEFAULT_CONTENT={   
+    "toolbar_configure": "Configure",
+    "toolbar_configure_tooltip": "Open the configure Json file of program GUI",
+    "toolbar_about": "About",
+    "toolbar_about_tooltip": "About the program",
+    "toolbar_coffee": "Coffee",
+    "toolbar_coffee_tooltip": "Buy me a coffee (TrucomanX)",
+    "window_width": 1024,
+    "window_height": 800,
+    "port_radius": 6,
+    "port_hit_radius": 10,
+    "node_min_width": 140,
+    "node_min_height": 70,
+    "grid_size": 20,
+    "edge_hit_tolerance": 8,
+    "color_normal_bg": "#2d3748",
+    "color_normal_border": "#4a90d9",
+    "color_normal_title": "#63b3ed",
+    "color_merge_bg": "#2d4a3e",
+    "color_merge_border": "#48bb78",
+    "color_merge_title": "#68d391",
+    "color_start_bg": "#2d3a1e",
+    "color_start_border": "#9ae600",
+    "color_start_title": "#b5f542",
+    "color_end_bg": "#4a1e1e",
+    "color_end_border": "#fc8181",
+    "color_end_title": "#feb2b2",
+    "color_port_input": "#63b3ed",
+    "color_port_output": "#f6ad55",
+    "color_port_hover": "#ffffff",
+    "color_edge": "#a0aec0",
+    "color_edge_selected": "#ffd700",
+    "color_edge_point": "#ffd700",
+    "color_text": "#e2e8f0",
+    "color_subdiagram": "#9f7aea",
+    "color_grid": "#2a2a3e",
+    "color_background": "#1a1a2e",
+    "color_breadcrumb_bg": "#2d3748",
+    "color_header_bg": "#1e2433",
+    "color_selection": [100, 149, 237, 80],
+    "palette_window": "#1a1a2e",
+    "palette_window_text": "#e2e8f0",
+    "palette_base": "#2d3748",
+    "palette_alternate_base": "#1e2433",
+    "palette_tooltip_base": "#2d3748",
+    "palette_tooltip_text": "#e2e8f0",
+    "palette_text": "#e2e8f0",
+    "palette_button": "#2d3748",
+    "palette_button_text": "#e2e8f0",
+    "palette_highlight": "#4a90d9",
+    "palette_highlighted_text": "#ffffff"
+}
+
+configure.verify_default_config(CONFIG_PATH,default_content=DEFAULT_CONTENT)
+
+CONFIG=configure.load_config(CONFIG_PATH)
 
 # ============================================================
 # CONSTANTS
 # ============================================================
 
-PORT_RADIUS = 6
-PORT_HIT_RADIUS = 10
-NODE_MIN_WIDTH = 140
-NODE_MIN_HEIGHT = 70
-GRID_SIZE = 20
-EDGE_HIT_TOLERANCE = 8
+PORT_RADIUS = CONFIG["port_radius"]
+PORT_HIT_RADIUS = CONFIG["port_hit_radius"]
+NODE_MIN_WIDTH = CONFIG["node_min_width"]
+NODE_MIN_HEIGHT = CONFIG["node_min_height"]
+GRID_SIZE = CONFIG["grid_size"]
+EDGE_HIT_TOLERANCE = CONFIG["edge_hit_tolerance"]
 
 COLORS = {
     "normal_bg": QColor("#2d3748"),
@@ -70,10 +139,9 @@ COLORS = {
     "grid": QColor("#2a2a3e"),
     "background": QColor("#1a1a2e"),
     "breadcrumb_bg": QColor("#2d3748"),
-    "header_bg": QColor("#1e2433"),
-    "selection": QColor(100, 149, 237, 80),
+    "header_bg": QColor(CONFIG["color_header_bg"]),
+    "selection": QColor(*CONFIG["color_selection"]),
 }
-
 
 # ============================================================
 # DATA MODELS
@@ -1425,10 +1493,15 @@ QMenu::separator {
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Hierarchical Diagram Editor")
-        self.setMinimumSize(1100, 700)
-        self.resize(1280, 800)
+        self.setWindowTitle(about.__program_name__)
+        self.resize(CONFIG["window_width"], CONFIG["window_height"])
+        
         self.setStyleSheet(STYLE_SHEET)
+        
+        ## Icon
+        # Get base directory for icons
+        self.icon_path = resource_path("icons", "logo.png")
+        self.setWindowIcon(QIcon(self.icon_path)) 
 
         self.current_filepath: Optional[str] = None
         self.current_diagram: Diagram = Diagram("New Diagram", "")
@@ -1536,6 +1609,33 @@ class MainWindow(QMainWindow):
         btn_fit.clicked.connect(lambda: self.view.fit_in_view())
         layout.addWidget(btn_fit)
 
+        # Configure
+        btn_configure = QPushButton("Configure")
+        configure_icon = QIcon.fromTheme("document-properties")
+        if not configure_icon.isNull():
+            btn_configure.setIcon(configure_icon)
+        btn_configure.setFixedHeight(32)
+        btn_configure.clicked.connect(lambda: self.open_configure_editor())
+        layout.addWidget(btn_configure)
+
+        # Coffee
+        btn_coffee = QPushButton("Coffee")
+        coffee_icon = QIcon.fromTheme("emblem-favorite")
+        if not coffee_icon.isNull():
+            btn_coffee.setIcon(coffee_icon)
+        btn_coffee.setFixedHeight(32)
+        btn_coffee.clicked.connect(lambda: self.on_coffee_action_click())
+        layout.addWidget(btn_coffee)
+
+        # About
+        btn_about = QPushButton("About")
+        about_icon = QIcon.fromTheme("help-about")
+        if not about_icon.isNull():
+            btn_about.setIcon(about_icon)
+        btn_about.setFixedHeight(32)
+        btn_about.clicked.connect(lambda: self.open_about())
+        layout.addWidget(btn_about)
+
         # Keyboard shortcuts
         from PyQt5.QtWidgets import QShortcut
         QShortcut(QKeySequence("Ctrl+N"), self, self.action_new)
@@ -1543,6 +1643,33 @@ class MainWindow(QMainWindow):
         QShortcut(QKeySequence("Ctrl+S"), self, self.action_save)
 
         return bar
+
+    def _open_file_in_text_editor(self, filepath):
+        if os.name == 'nt':  # Windows
+            os.startfile(filepath)
+        elif os.name == 'posix':  # Linux/macOS
+            subprocess.run(['xdg-open', filepath])
+        
+    def open_configure_editor(self):
+        self._open_file_in_text_editor(CONFIG_PATH)
+
+    def open_about(self):
+        data={
+            "version": about.__version__,
+            "package": about.__package__,
+            "program_name": about.__program_name__,
+            "author": about.__author__,
+            "email": about.__email__,
+            "description": about.__description__,
+            "url_source": about.__url_source__,
+            "url_doc": about.__url_doc__,
+            "url_funding": about.__url_funding__,
+            "url_bugs": about.__url_bugs__
+        }
+        show_about_window(data,self.icon_path)
+
+    def on_coffee_action_click(self):
+        QDesktopServices.openUrl(QUrl("https://ko-fi.com/trucomanx"))
 
     def _build_header(self) -> QWidget:
         header = QWidget()
@@ -1731,7 +1858,7 @@ class MainWindow(QMainWindow):
         base_dir = os.path.dirname(self.current_filepath)
         default_name = node.title.replace(" ", "_").lower() + ".hdiagram"
         filepath, _ = QFileDialog.getSaveFileName(
-            self, "Criar Subdiagrama", os.path.join(base_dir, default_name),
+            self, "Create Subdiagram", os.path.join(base_dir, default_name),
             "Hierarchical Diagram Files (*.hdiagram)"
         )
         if not filepath:
@@ -1741,17 +1868,17 @@ class MainWindow(QMainWindow):
             filepath += ".hdiagram"
 
         # Create new empty diagram
-        new_diagram = Diagram(node.title + " — Subdiagrama", f"Subdiagrama de '{node.title}'")
+        new_diagram = Diagram(node.title + " -- Subdiagram", f"Subdiagram of '{node.title}'")
         # Add default start/end
-        start = Node(Node.NODE_START, "Início", "", 100, 200)
-        end = Node(Node.NODE_END, "Fim", "", 500, 200)
+        start = Node(Node.NODE_START, "Start", "", 100, 200)
+        end = Node(Node.NODE_END, "End", "", 500, 200)
         new_diagram.add_node(start)
         new_diagram.add_node(end)
 
         try:
             DiagramSerializer.save(new_diagram, filepath)
         except Exception as ex:
-            QMessageBox.critical(self, "Erro", f"Não foi possível criar subdiagrama:\n{ex}")
+            QMessageBox.critical(self, "Error", f"Unable to create subdiagram:\n{ex}")
             return
 
         # Set relative path
@@ -1763,8 +1890,8 @@ class MainWindow(QMainWindow):
 
         # Navigate into subdiagram
         reply = QMessageBox.question(
-            self, "Navegar",
-            f"Subdiagrama criado em '{filepath}'.\nDeseja navegar para ele?",
+            self, "Navigate",
+            f"Subdiagram created in '{filepath}'.\nDo you want to navigate to it?",
             QMessageBox.Yes | QMessageBox.No
         )
         if reply == QMessageBox.Yes:
@@ -1776,7 +1903,7 @@ class MainWindow(QMainWindow):
             return
 
         if not self.current_filepath:
-            QMessageBox.warning(self, "Aviso", "Salve o diagrama atual primeiro.")
+            QMessageBox.warning(self, "Warning", "Save the current diagram first.")
             return
 
         base_dir = os.path.dirname(self.current_filepath)
@@ -1785,8 +1912,8 @@ class MainWindow(QMainWindow):
 
         if not os.path.exists(sub_path):
             reply = QMessageBox.question(
-                self, "Arquivo não encontrado",
-                f"O arquivo '{sub_path}' não existe.\nDeseja criar um novo subdiagrama?",
+                self, "File not found",
+                f"The file '{sub_path}' does not exist.\nDo you want to create a new subdiagram?",
                 QMessageBox.Yes | QMessageBox.No
             )
             if reply == QMessageBox.Yes:
@@ -1797,7 +1924,7 @@ class MainWindow(QMainWindow):
             sub_diagram = DiagramSerializer.load(sub_path)
             self._navigate_to(sub_path, sub_diagram)
         except Exception as ex:
-            QMessageBox.critical(self, "Erro", f"Não foi possível abrir subdiagrama:\n{ex}")
+            QMessageBox.critical(self, "Error", f"Unable to open subdiagram:\n{ex}")
 
     def _navigate_to(self, filepath: str, diagram: Diagram):
         # Save current state to stack
@@ -1812,13 +1939,13 @@ class MainWindow(QMainWindow):
         self._update_header()
         self._update_breadcrumb()
         self._update_back_button()
-        self.statusBar().showMessage(f"Navegando para: {diagram.title}")
+        self.statusBar().showMessage(f"Navigating to: {diagram.title}")
 
     def closeEvent(self, event):
         if self._modified:
             reply = QMessageBox.question(
-                self, "Sair",
-                "Diagrama modificado. Deseja salvar antes de sair?",
+                self, "Exit",
+                "Diagram modified. Do you want to save before exiting?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
@@ -1837,23 +1964,50 @@ class MainWindow(QMainWindow):
 # ============================================================
 
 def main():
-    app = QApplication(sys.argv)
-    app.setApplicationName("Hierarchical Diagram Editor")
-    app.setStyle("Fusion")
 
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    
+    '''
+    create_desktop_directory()    
+    create_desktop_menu()
+    create_desktop_file(os.path.join("~",".local","share","applications"), 
+                        program_name=about.__program_name__)
+    
+    for n in range(len(sys.argv)):
+        if sys.argv[n] == "--autostart":
+            create_desktop_directory(overwrite = True)
+            create_desktop_menu(overwrite = True)
+            create_desktop_file(os.path.join("~",".config","autostart"), 
+                                overwrite=True, 
+                                program_name=about.__program_name__)
+            return
+        if sys.argv[n] == "--applications":
+            create_desktop_directory(overwrite = True)
+            create_desktop_menu(overwrite = True)
+            create_desktop_file(os.path.join("~",".local","share","applications"), 
+                                overwrite=True, 
+                                program_name=about.__program_name__)
+            return
+    '''
+    
+    app = QApplication(sys.argv)
+    app.setApplicationName(about.__package__) 
+
+    app.setStyle("Fusion")
+    
     # Dark palette base
     palette = QPalette()
-    palette.setColor(QPalette.Window, QColor("#1a1a2e"))
-    palette.setColor(QPalette.WindowText, QColor("#e2e8f0"))
-    palette.setColor(QPalette.Base, QColor("#2d3748"))
-    palette.setColor(QPalette.AlternateBase, QColor("#1e2433"))
-    palette.setColor(QPalette.ToolTipBase, QColor("#2d3748"))
-    palette.setColor(QPalette.ToolTipText, QColor("#e2e8f0"))
-    palette.setColor(QPalette.Text, QColor("#e2e8f0"))
-    palette.setColor(QPalette.Button, QColor("#2d3748"))
-    palette.setColor(QPalette.ButtonText, QColor("#e2e8f0"))
-    palette.setColor(QPalette.Highlight, QColor("#4a90d9"))
-    palette.setColor(QPalette.HighlightedText, QColor("#ffffff"))
+    palette.setColor(QPalette.Window, QColor(CONFIG["palette_window"]))
+    palette.setColor(QPalette.WindowText, QColor(CONFIG["palette_window_text"]))
+    palette.setColor(QPalette.Base, QColor(CONFIG["palette_base"]))
+    palette.setColor(QPalette.AlternateBase, QColor(CONFIG["palette_alternate_base"]))
+    palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["palette_tooltip_base"]))
+    palette.setColor(QPalette.ToolTipText, QColor(CONFIG["palette_tooltip_text"]))
+    palette.setColor(QPalette.Text, QColor(CONFIG["palette_text"]))
+    palette.setColor(QPalette.Button, QColor(CONFIG["palette_button"]))
+    palette.setColor(QPalette.ButtonText, QColor(CONFIG["palette_button_text"]))
+    palette.setColor(QPalette.Highlight, QColor(CONFIG["palette_highlight"]))
+    palette.setColor(QPalette.HighlightedText, QColor(CONFIG["palette_highlighted_text"]))
     app.setPalette(palette)
 
     window = MainWindow()
