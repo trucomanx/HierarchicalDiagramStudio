@@ -89,7 +89,6 @@ DEFAULT_CONTENT={
     "color_selection": [100, 149, 237, 80],
     "palette_window": "#1a1a2e",
     "palette_window_text": "#e2e8f0",
-    "palette_base": "#2d3748",
     "palette_alternate_base": "#1e2433",
     "palette_tooltip_base": "#2d3748",
     "palette_tooltip_text": "#e2e8f0",
@@ -116,29 +115,29 @@ GRID_SIZE = CONFIG["grid_size"]
 EDGE_HIT_TOLERANCE = CONFIG["edge_hit_tolerance"]
 
 COLORS = {
-    "normal_bg": QColor("#2d3748"),
-    "normal_border": QColor("#4a90d9"),
-    "normal_title": QColor("#63b3ed"),
-    "merge_bg": QColor("#2d4a3e"),
-    "merge_border": QColor("#48bb78"),
-    "merge_title": QColor("#68d391"),
-    "start_bg": QColor("#2d3a1e"),
-    "start_border": QColor("#9ae600"),
-    "start_title": QColor("#b5f542"),
-    "end_bg": QColor("#4a1e1e"),
-    "end_border": QColor("#fc8181"),
-    "end_title": QColor("#feb2b2"),
-    "port_input": QColor("#63b3ed"),
-    "port_output": QColor("#f6ad55"),
-    "port_hover": QColor("#ffffff"),
-    "edge": QColor("#a0aec0"),
-    "edge_selected": QColor("#ffd700"),
-    "edge_point": QColor("#ffd700"),
-    "text": QColor("#e2e8f0"),
-    "subdiagram": QColor("#9f7aea"),
-    "grid": QColor("#2a2a3e"),
-    "background": QColor("#1a1a2e"),
-    "breadcrumb_bg": QColor("#2d3748"),
+    "normal_bg": QColor(CONFIG["color_normal_bg"]),
+    "normal_border": QColor(CONFIG["color_normal_border"]),
+    "normal_title": QColor(CONFIG["color_normal_title"]),
+    "merge_bg": QColor(CONFIG["color_merge_bg"]),
+    "merge_border": QColor(CONFIG["color_merge_border"]),
+    "merge_title": QColor(CONFIG["color_merge_title"]),
+    "start_bg": QColor(CONFIG["color_start_bg"]),
+    "start_border": QColor(CONFIG["color_start_border"]),
+    "start_title": QColor(CONFIG["color_start_title"]),
+    "end_bg": QColor(CONFIG["color_end_bg"]),
+    "end_border": QColor(CONFIG["color_end_border"]),
+    "end_title": QColor(CONFIG["color_end_title"]),
+    "port_input": QColor(CONFIG["color_port_input"]),
+    "port_output": QColor(CONFIG["color_port_output"]),
+    "port_hover": QColor(CONFIG["color_port_hover"]),
+    "edge": QColor(CONFIG["color_edge"]),
+    "edge_selected": QColor(CONFIG["color_edge_selected"]),
+    "edge_point": QColor(CONFIG["color_edge_point"]),
+    "text": QColor(CONFIG["color_text"]),
+    "subdiagram": QColor(CONFIG["color_subdiagram"]),
+    "grid": QColor(CONFIG["color_grid"]),
+    "background": QColor(CONFIG["color_background"]),
+    "breadcrumb_bg": QColor(CONFIG["color_breadcrumb_bg"]),
     "header_bg": QColor(CONFIG["color_header_bg"]),
     "selection": QColor(*CONFIG["color_selection"]),
 }
@@ -1543,8 +1542,8 @@ class MainWindow(QMainWindow):
 
         # Status bar
         self.statusBar().setStyleSheet("background: #1e2433; color: #718096; font-size: 11px;")
-        self.statusBar().showMessage("Pronto | Clique direito na área para adicionar blocos | "
-                                     "Arraste portas para conectar | F = Ajustar | Scroll = Zoom")
+        self.statusBar().showMessage("Done | Right click on the area to add blocks | "
+                                     "Drag ports to connect | F = Fit | Scroll = Zoom")
 
     def _build_toolbar(self) -> QWidget:
         bar = QWidget()
@@ -1566,10 +1565,10 @@ class MainWindow(QMainWindow):
             b.setIconSize(QSize(16, 16))
             return b
 
-        self.btn_new     = btn("document-new",      "Novo",       "Novo diagrama (Ctrl+N)",          self.action_new)
-        self.btn_open    = btn("document-open",     "Abrir",      "Abrir arquivo .hdiagram (Ctrl+O)", self.action_open)
-        self.btn_save    = btn("document-save",     "Salvar",     "Salvar (Ctrl+S)",                 self.action_save)
-        self.btn_save_as = btn("document-save-as",  "Salvar Como","Salvar como...",                  self.action_save_as)
+        self.btn_new     = btn("document-new",      "New",    "New diagram (Ctrl+N)",         self.action_new)
+        self.btn_open    = btn("document-open",     "Open",   "Open .hdiagram file (Ctrl+O)", self.action_open)
+        self.btn_save    = btn("document-save",     "Save",   "Save (Ctrl+S)",                self.action_save)
+        self.btn_save_as = btn("document-save-as",  "Save As","Save as...",                   self.action_save_as)
 
         layout.addWidget(self.btn_new)
         layout.addWidget(self.btn_open)
@@ -1583,7 +1582,7 @@ class MainWindow(QMainWindow):
         sep.setStyleSheet("background: #4a5568;")
         layout.addWidget(sep)
 
-        self.btn_back = btn("go-previous", "Voltar", "Voltar ao diagrama anterior", self.action_back)
+        self.btn_back = btn("go-previous", "Back", "Return to previous diagram", self.action_back)
         self.btn_back.setEnabled(False)
         layout.addWidget(self.btn_back)
 
@@ -1601,7 +1600,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.btn_grid)
 
         # Fit view
-        btn_fit = QPushButton("Ajustar")
+        btn_fit = QPushButton("Adjust")
         fit_icon = QIcon.fromTheme("zoom-fit-best")
         if not fit_icon.isNull():
             btn_fit.setIcon(fit_icon)
@@ -1698,7 +1697,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(left, 1)
 
         # Edit button
-        self.btn_edit_diagram = QPushButton("✏ Editar Info")
+        self.btn_edit_diagram = QPushButton("✏ Edit Info")
         self.btn_edit_diagram.setFixedHeight(32)
         self.btn_edit_diagram.clicked.connect(self._edit_diagram_info)
         layout.addWidget(self.btn_edit_diagram)
@@ -1710,7 +1709,7 @@ class MainWindow(QMainWindow):
         summary_html = (self.current_diagram.summary or "").replace("\n", "<br>")
         self.summary_label.setText(summary_html)
         modified_indicator = " *" if self._modified else ""
-        file_info = os.path.basename(self.current_filepath) if self.current_filepath else "Sem arquivo"
+        file_info = os.path.basename(self.current_filepath) if self.current_filepath else "No file"
         self.setWindowTitle(f"Hierarchical Diagram Editor — {file_info}{modified_indicator}")
 
     def _update_breadcrumb(self):
@@ -1750,8 +1749,8 @@ class MainWindow(QMainWindow):
     def action_new(self):
         if self._modified:
             reply = QMessageBox.question(
-                self, "Salvar?",
-                "Diagrama modificado. Deseja salvar antes de criar novo?",
+                self, "Save?",
+                "Modified diagram. Do you want to save before creating a new one?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
@@ -1771,8 +1770,8 @@ class MainWindow(QMainWindow):
     def action_open(self):
         if self._modified:
             reply = QMessageBox.question(
-                self, "Salvar?",
-                "Diagrama modificado. Deseja salvar antes de abrir?",
+                self, "Save?",
+                "Diagram modified. Do you want to save before opening?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
@@ -1781,7 +1780,7 @@ class MainWindow(QMainWindow):
                 return
 
         filepath, _ = QFileDialog.getOpenFileName(
-            self, "Abrir Diagrama", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
+            self, "Open Diagram", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
         if filepath:
             self._load_file(filepath)
 
@@ -1796,9 +1795,9 @@ class MainWindow(QMainWindow):
             self._update_header()
             self._update_breadcrumb()
             self._update_back_button()
-            self.statusBar().showMessage(f"Aberto: {filepath}")
+            self.statusBar().showMessage(f"Opened: {filepath}")
         except Exception as ex:
-            QMessageBox.critical(self, "Erro", f"Não foi possível abrir o arquivo:\n{ex}")
+            QMessageBox.critical(self, "Error", f"Unable to open file:\n{ex}")
 
     def action_save(self):
         if not self.current_filepath:
@@ -1808,7 +1807,7 @@ class MainWindow(QMainWindow):
 
     def action_save_as(self):
         filepath, _ = QFileDialog.getSaveFileName(
-            self, "Salvar Diagrama Como", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
+            self, "Save Diagram As", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
         if filepath:
             if not filepath.endswith(".hdiagram"):
                 filepath += ".hdiagram"
@@ -1820,9 +1819,9 @@ class MainWindow(QMainWindow):
             DiagramSerializer.save(self.current_diagram, filepath)
             self._modified = False
             self._update_header()
-            self.statusBar().showMessage(f"Salvo: {filepath}")
+            self.statusBar().showMessage(f"Saved: {filepath}")
         except Exception as ex:
-            QMessageBox.critical(self, "Erro", f"Não foi possível salvar:\n{ex}")
+            QMessageBox.critical(self, "Error", f"Unable to save:\n{ex}")
 
     def action_back(self):
         if not self.nav_manager.can_go_back():
@@ -1840,7 +1839,7 @@ class MainWindow(QMainWindow):
             self._update_header()
             self._update_breadcrumb()
             self._update_back_button()
-            self.statusBar().showMessage(f"Voltou para: {self.current_diagram.title}")
+            self.statusBar().showMessage(f"Returned to: {self.current_diagram.title}")
 
     def create_subdiagram_for_node(self, node_item: GraphicsNodeItem):
         node = node_item.node
@@ -1849,8 +1848,8 @@ class MainWindow(QMainWindow):
 
         # Ask for save location
         if not self.current_filepath:
-            QMessageBox.warning(self, "Aviso",
-                                "Salve o diagrama atual primeiro antes de criar subdiagrama.")
+            QMessageBox.warning(self, "Warning",
+                                "Save current diagram first before creating subdiagram.")
             self.action_save()
             if not self.current_filepath:
                 return
@@ -1999,7 +1998,7 @@ def main():
     palette = QPalette()
     palette.setColor(QPalette.Window, QColor(CONFIG["palette_window"]))
     palette.setColor(QPalette.WindowText, QColor(CONFIG["palette_window_text"]))
-    palette.setColor(QPalette.Base, QColor(CONFIG["palette_base"]))
+    palette.setColor(QPalette.Base, QColor(CONFIG["color_breadcrumb_bg"]))
     palette.setColor(QPalette.AlternateBase, QColor(CONFIG["palette_alternate_base"]))
     palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["palette_tooltip_base"]))
     palette.setColor(QPalette.ToolTipText, QColor(CONFIG["palette_tooltip_text"]))
