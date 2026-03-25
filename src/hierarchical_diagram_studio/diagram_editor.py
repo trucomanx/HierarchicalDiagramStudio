@@ -83,20 +83,13 @@ DEFAULT_CONTENT={
     "color_text": "#e2e8f0",
     "color_subdiagram": "#9f7aea",
     "color_grid": "#2a2a3e",
+    "color_base": "#2d3748",
+    "color_border": "#4a90d9",
+    "color_ui_neutral": "#4a5568",
+    "color_hover": "#63b3ed",
+    "color_highlighted_text": "#ffffff",
     "color_background": "#1a1a2e",
-    "color_breadcrumb_bg": "#2d3748",
-    "color_header_bg": "#1e2433",
-    "color_selection": [100, 149, 237, 80],
-    "palette_window": "#1a1a2e",
-    "palette_window_text": "#e2e8f0",
-    "palette_alternate_base": "#1e2433",
-    "palette_tooltip_base": "#2d3748",
-    "palette_tooltip_text": "#e2e8f0",
-    "palette_text": "#e2e8f0",
-    "palette_button": "#2d3748",
-    "palette_button_text": "#e2e8f0",
-    "palette_highlight": "#4a90d9",
-    "palette_highlighted_text": "#ffffff"
+    "color_header_bg": "#1e2433"
 }
 
 configure.verify_default_config(CONFIG_PATH,default_content=DEFAULT_CONTENT)
@@ -114,33 +107,6 @@ NODE_MIN_HEIGHT = CONFIG["node_min_height"]
 GRID_SIZE = CONFIG["grid_size"]
 EDGE_HIT_TOLERANCE = CONFIG["edge_hit_tolerance"]
 
-COLORS = {
-    "normal_bg": QColor(CONFIG["color_normal_bg"]),
-    "normal_border": QColor(CONFIG["color_normal_border"]),
-    "normal_title": QColor(CONFIG["color_normal_title"]),
-    "merge_bg": QColor(CONFIG["color_merge_bg"]),
-    "merge_border": QColor(CONFIG["color_merge_border"]),
-    "merge_title": QColor(CONFIG["color_merge_title"]),
-    "start_bg": QColor(CONFIG["color_start_bg"]),
-    "start_border": QColor(CONFIG["color_start_border"]),
-    "start_title": QColor(CONFIG["color_start_title"]),
-    "end_bg": QColor(CONFIG["color_end_bg"]),
-    "end_border": QColor(CONFIG["color_end_border"]),
-    "end_title": QColor(CONFIG["color_end_title"]),
-    "port_input": QColor(CONFIG["color_port_input"]),
-    "port_output": QColor(CONFIG["color_port_output"]),
-    "port_hover": QColor(CONFIG["color_port_hover"]),
-    "edge": QColor(CONFIG["color_edge"]),
-    "edge_selected": QColor(CONFIG["color_edge_selected"]),
-    "edge_point": QColor(CONFIG["color_edge_point"]),
-    "text": QColor(CONFIG["color_text"]),
-    "subdiagram": QColor(CONFIG["color_subdiagram"]),
-    "grid": QColor(CONFIG["color_grid"]),
-    "background": QColor(CONFIG["color_background"]),
-    "breadcrumb_bg": QColor(CONFIG["color_breadcrumb_bg"]),
-    "header_bg": QColor(CONFIG["color_header_bg"]),
-    "selection": QColor(*CONFIG["color_selection"]),
-}
 
 # ============================================================
 # DATA MODELS
@@ -418,11 +384,11 @@ class GraphicsPortItem(QGraphicsEllipseItem):
 
     def update_appearance(self):
         if self._hovered:
-            color = COLORS["port_hover"]
+            color = QColor(CONFIG["color_port_hover"])
         elif self.is_input:
-            color = COLORS["port_input"]
+            color = QColor(CONFIG["color_port_input"])
         else:
-            color = COLORS["port_output"]
+            color = QColor(CONFIG["color_port_output"])
         self.setBrush(QBrush(color))
         self.setPen(QPen(Qt.white, 1.5))
 
@@ -564,21 +530,21 @@ class GraphicsNodeItem(QGraphicsItem):
         # Colors based on type
         t = self.node.type
         if t == Node.NODE_NORMAL:
-            bg = COLORS["normal_bg"]
-            border = COLORS["normal_border"]
-            title_color = COLORS["normal_title"]
+            bg = QColor(CONFIG["color_normal_bg"])
+            border = QColor(CONFIG["color_normal_border"])
+            title_color = QColor(CONFIG["color_normal_title"])
         elif t == Node.NODE_MERGE:
-            bg = COLORS["merge_bg"]
-            border = COLORS["merge_border"]
-            title_color = COLORS["merge_title"]
+            bg = QColor(CONFIG["color_merge_bg"])
+            border = QColor(CONFIG["color_merge_border"])
+            title_color = QColor(CONFIG["color_merge_title"])
         elif t == Node.NODE_START:
-            bg = COLORS["start_bg"]
-            border = COLORS["start_border"]
-            title_color = COLORS["start_title"]
+            bg = QColor(CONFIG["color_start_bg"])
+            border = QColor(CONFIG["color_start_border"])
+            title_color = QColor(CONFIG["color_start_title"])
         else:  # END
-            bg = COLORS["end_bg"]
-            border = COLORS["end_border"]
-            title_color = COLORS["end_title"]
+            bg = QColor(CONFIG["color_end_bg"])
+            border = QColor(CONFIG["color_end_border"])
+            title_color = QColor(CONFIG["color_end_title"])
 
         path = self._get_shape_path()
 
@@ -594,14 +560,14 @@ class GraphicsNodeItem(QGraphicsItem):
         grad.setColorAt(0, bg.lighter(120))
         grad.setColorAt(1, bg)
         painter.setBrush(QBrush(grad))
-        pen_color = border if not self.isSelected() else COLORS["edge_selected"]
+        pen_color = border if not self.isSelected() else QColor(CONFIG["color_edge_selected"])
         pen_width = 2.5 if self.isSelected() else 1.5
         painter.setPen(QPen(pen_color, pen_width))
         painter.drawPath(path)
 
         # Sub-indicator line (if has subdiagram)
         if self.node.subdiagram and t == Node.NODE_NORMAL:
-            painter.setPen(QPen(COLORS["subdiagram"], 1.5, Qt.DashLine))
+            painter.setPen(QPen(QColor(CONFIG["color_subdiagram"]), 1.5, Qt.DashLine))
             painter.setBrush(Qt.NoBrush)
             rect_inner = QRectF(-hw + 4, -hh + 4, hw * 2 - 8, hh * 2 - 8)
             painter.drawRoundedRect(rect_inner, 7, 7)
@@ -616,7 +582,7 @@ class GraphicsNodeItem(QGraphicsItem):
 
         # Summary text (only for normal)
         if self.node.type == Node.NODE_NORMAL and self.node.summary:
-            painter.setPen(QPen(COLORS["text"].darker(110)))
+            painter.setPen(QPen(QColor(CONFIG["color_text"]).darker(110)))
             font2 = QFont("Segoe UI", 7)
             painter.setFont(font2)
             summary_rect = QRectF(-hw + 8, 2, hw * 2 - 16, hh - 8)
@@ -646,13 +612,13 @@ class GraphicsNodeItem(QGraphicsItem):
         for i, pos in enumerate(input_pos):
             if i < len(self.node.inputs):
                 lbl = self.node.inputs[i]
-                painter.setPen(QPen(COLORS["port_input"].lighter(130)))
+                painter.setPen(QPen(QColor(CONFIG["color_port_input"]).lighter(130)))
                 lr = QRectF(pos.x() + PORT_RADIUS + 2, pos.y() - 8, 40, 16)
                 painter.drawText(lr, Qt.AlignLeft | Qt.AlignVCenter, lbl)
         for i, pos in enumerate(output_pos):
             if i < len(self.node.outputs):
                 lbl = self.node.outputs[i]
-                painter.setPen(QPen(COLORS["port_output"].lighter(130)))
+                painter.setPen(QPen(QColor(CONFIG["color_port_output"]).lighter(130)))
                 lr = QRectF(pos.x() - 42 - PORT_RADIUS, pos.y() - 8, 40, 16)
                 painter.drawText(lr, Qt.AlignRight | Qt.AlignVCenter, lbl)
 
@@ -819,10 +785,10 @@ class GraphicsEdgeItem(QGraphicsPathItem):
 
     def _update_pen(self):
         if self.isSelected() or self._hovered:
-            color = COLORS["edge_selected"]
+            color = QColor(CONFIG["color_edge_selected"])
             width = 2.5
         else:
-            color = COLORS["edge"]
+            color = QColor(CONFIG["color_edge"])
             width = 1.5
         pen = QPen(color, width)
         pen.setCapStyle(Qt.RoundCap)
@@ -869,7 +835,7 @@ class GraphicsEdgeItem(QGraphicsPathItem):
 
         # Draw intermediate points
         if self.isSelected() or self._hovered:
-            painter.setBrush(QBrush(COLORS["edge_point"]))
+            painter.setBrush(QBrush(QColor(CONFIG["color_edge_point"])))
             painter.setPen(QPen(Qt.black, 1))
             for pt in self.edge.points:
                 painter.drawEllipse(QPointF(pt[0], pt[1]), 5, 5)
@@ -886,7 +852,7 @@ class GraphicsEdgeItem(QGraphicsPathItem):
         base = QPointF(p2.x() - nx * arrow_len, p2.y() - ny * arrow_len)
         left = QPointF(base.x() - ny * arrow_width, base.y() + nx * arrow_width)
         right = QPointF(base.x() + ny * arrow_width, base.y() - nx * arrow_width)
-        color = COLORS["edge_selected"] if (self.isSelected() or self._hovered) else COLORS["edge"]
+        color = QColor(CONFIG["color_edge_selected"]) if (self.isSelected() or self._hovered) else QColor(CONFIG["color_edge"])
         painter.setBrush(QBrush(color))
         painter.setPen(QPen(color, 1))
         poly = QPolygonF([p2, left, right])
@@ -1019,7 +985,7 @@ class TempEdgeLine(QGraphicsPathItem):
     """Visual feedback while drawing a new edge."""
     def __init__(self):
         super().__init__()
-        pen = QPen(COLORS["port_output"], 2, Qt.DashLine)
+        pen = QPen(QColor(CONFIG["color_port_output"]), 2, Qt.DashLine)
         self.setPen(pen)
         self.setZValue(100)
 
@@ -1041,7 +1007,7 @@ class DiagramScene(QGraphicsScene):
         super().__init__()
         self.diagram = diagram
         self.main_window = main_window
-        self.setBackgroundBrush(QBrush(COLORS["background"]))
+        self.setBackgroundBrush(QBrush(QColor(CONFIG["color_background"])))
 
         self._node_items: Dict[str, GraphicsNodeItem] = {}
         self._edge_items: Dict[str, GraphicsEdgeItem] = {}
@@ -1253,7 +1219,7 @@ class DiagramScene(QGraphicsScene):
         super().drawBackground(painter, rect)
         # Draw grid
         if hasattr(self, 'show_grid') and self.show_grid:
-            painter.setPen(QPen(COLORS["grid"], 0.5))
+            painter.setPen(QPen(QColor(CONFIG["color_grid"]), 0.5))
             left = int(rect.left()) - (int(rect.left()) % GRID_SIZE)
             top = int(rect.top()) - (int(rect.top()) % GRID_SIZE)
             x = left
@@ -1366,15 +1332,35 @@ class EditNodeDialog(QDialog):
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
 
-        self.setStyleSheet("""
-            QDialog { background: #2d3748; color: #e2e8f0; }
-            QLineEdit, QTextEdit { background: #1a1a2e; color: #e2e8f0;
-                                   border: 1px solid #4a90d9; border-radius: 4px;
-                                   padding: 4px; }
-            QLabel { color: #a0aec0; }
-            QPushButton { background: #4a90d9; color: white; border-radius: 4px;
-                          padding: 6px 16px; border: none; }
-            QPushButton:hover { background: #63b3ed; }
+        self.setStyleSheet(f"""
+QDialog {{ 
+    background: {CONFIG['color_base']}; 
+    color: {CONFIG['color_text']}; 
+}}
+
+QLineEdit, QTextEdit {{ 
+    background: {CONFIG['color_background']}; 
+    color: {CONFIG['color_text']};
+    border: 1px solid {CONFIG['color_border']}; 
+    border-radius: 4px;
+    padding: 4px; 
+}}
+
+QLabel {{ 
+    color: {CONFIG['color_edge']}; 
+}}
+
+QPushButton {{ 
+    background: {CONFIG['color_border']}; 
+    color: white; 
+    border-radius: 4px;
+    padding: 6px 16px; 
+    border: none; 
+}}
+
+QPushButton:hover {{ 
+    background: {CONFIG['color_hover']}; 
+}}
         """)
 
 
@@ -1404,15 +1390,35 @@ class EditDiagramDialog(QDialog):
         buttons.rejected.connect(self.reject)
         main_layout.addWidget(buttons)
 
-        self.setStyleSheet("""
-            QDialog { background: #2d3748; color: #e2e8f0; }
-            QLineEdit, QTextEdit { background: #1a1a2e; color: #e2e8f0;
-                                   border: 1px solid #4a90d9; border-radius: 4px;
-                                   padding: 4px; }
-            QLabel { color: #a0aec0; }
-            QPushButton { background: #4a90d9; color: white; border-radius: 4px;
-                          padding: 6px 16px; border: none; }
-            QPushButton:hover { background: #63b3ed; }
+        self.setStyleSheet(f"""
+QDialog {{ 
+    background: {CONFIG['color_base']}; 
+    color: {CONFIG['color_text']}; 
+}}
+
+QLineEdit, QTextEdit {{ 
+    background: {CONFIG['color_background']}; 
+    color: {CONFIG['color_text']};
+    border: 1px solid {CONFIG['color_border']}; 
+    border-radius: 4px;
+    padding: 4px; 
+}}
+
+QLabel {{ 
+    color: {CONFIG['color_edge']}; 
+}}
+
+QPushButton {{ 
+    background: {CONFIG['color_border']}; 
+    color: white; 
+    border-radius: 4px;
+    padding: 6px 16px; 
+    border: none; 
+}}
+
+QPushButton:hover {{ 
+    background: {CONFIG['color_hover']}; 
+}}
         """)
 
 
@@ -1420,72 +1426,84 @@ class EditDiagramDialog(QDialog):
 # MAIN WINDOW
 # ============================================================
 
-STYLE_SHEET = """
-QMainWindow { background: #1a1a2e; }
-QWidget { background: #1a1a2e; color: #e2e8f0; font-family: 'Segoe UI', Arial, sans-serif; }
+STYLE_SHEET = f"""
+QMainWindow {{ background: {CONFIG['color_background']}; }}
+QWidget {{
+    background: {CONFIG['color_background']}; 
+    color: {CONFIG['color_text']}; 
+    font-family: 'Segoe UI', Arial, sans-serif; 
+}}
 
-QPushButton {
-    background: #2d3748;
-    color: #a0aec0;
-    border: 1px solid #4a5568;
+QPushButton {{
+    background: {CONFIG['color_base']};
+    color: {CONFIG['color_edge']};
+    border: 1px solid {CONFIG['color_ui_neutral']};
     border-radius: 5px;
     padding: 5px 12px;
     font-size: 12px;
-}
-QPushButton:hover {
-    background: #4a5568;
-    color: #e2e8f0;
-}
-QPushButton:pressed {
-    background: #4a90d9;
-    color: white;
-}
-QPushButton:disabled {
-    color: #4a5568;
-    border-color: #2d3748;
-}
+}}
 
-QToolBar {
-    background: #1e2433;
-    border-bottom: 1px solid #2d3748;
+QPushButton:hover {{
+    background: {CONFIG['color_ui_neutral']};
+    color: {CONFIG['color_text']};
+}}
+
+QPushButton:pressed {{
+    background: {CONFIG['color_border']};
+    color: white;
+}}
+
+QPushButton:disabled {{
+    color: {CONFIG['color_ui_neutral']};
+    border-color: {CONFIG['color_base']};
+}}
+
+QToolBar {{
+    background: {CONFIG['color_header_bg']};
+    border-bottom: 1px solid {CONFIG['color_base']};
     spacing: 4px;
     padding: 4px;
-}
+}}
 
-QLabel { background: transparent; }
+QLabel {{ background: transparent; }}
 
-QScrollBar:vertical {
-    background: #1a1a2e;
+QScrollBar:vertical {{
+    background: {CONFIG['color_background']};
     width: 8px;
-}
-QScrollBar::handle:vertical {
-    background: #4a5568;
-    border-radius: 4px;
-}
-QScrollBar:horizontal {
-    background: #1a1a2e;
-    height: 8px;
-}
-QScrollBar::handle:horizontal {
-    background: #4a5568;
-    border-radius: 4px;
-}
+}}
 
-QMenu {
-    background: #2d3748;
-    border: 1px solid #4a5568;
-    color: #e2e8f0;
+QScrollBar::handle:vertical {{
+    background: {CONFIG['color_ui_neutral']};
+    border-radius: 4px;
+}}
+
+QScrollBar:horizontal {{
+    background: {CONFIG['color_background']};
+    height: 8px;
+}}
+
+QScrollBar::handle:horizontal {{
+    background: {CONFIG['color_ui_neutral']};
+    border-radius: 4px;
+}}
+
+QMenu {{
+    background: {CONFIG['color_base']};
+    border: 1px solid {CONFIG['color_ui_neutral']};
+    color: {CONFIG['color_text']};
     padding: 4px;
-}
-QMenu::item:selected {
-    background: #4a90d9;
+}}
+
+QMenu::item:selected {{
+    background: {CONFIG['color_border']};
     border-radius: 3px;
-}
-QMenu::separator {
+}}
+
+QMenu::separator {{
     height: 1px;
-    background: #4a5568;
+    background: {CONFIG['color_ui_neutral']};
     margin: 3px 0;
-}
+}}
 """
 
 
@@ -1532,7 +1550,7 @@ class MainWindow(QMainWindow):
         # Divider
         divider = QWidget()
         divider.setFixedHeight(1)
-        divider.setStyleSheet("background: #2d3748;")
+        divider.setStyleSheet(f"background: {CONFIG['color_base']};")
         main_layout.addWidget(divider)
 
         # Graphics view
@@ -1541,14 +1559,14 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.view, 1)
 
         # Status bar
-        self.statusBar().setStyleSheet("background: #1e2433; color: #718096; font-size: 11px;")
+        self.statusBar().setStyleSheet(f"background: {CONFIG['color_header_bg']}; color: {CONFIG['color_text']}; font-size: 11px;")
         self.statusBar().showMessage("Done | Right click on the area to add blocks | "
                                      "Drag ports to connect | F = Fit | Scroll = Zoom")
 
     def _build_toolbar(self) -> QWidget:
         bar = QWidget()
         bar.setFixedHeight(44)
-        bar.setStyleSheet("background: #1e2433; border-bottom: 1px solid #2d3748;")
+        bar.setStyleSheet(f"background: {CONFIG['color_header_bg']}; border-bottom: 1px solid {CONFIG['color_base']};")
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(6)
@@ -1579,7 +1597,7 @@ class MainWindow(QMainWindow):
         sep = QWidget()
         sep.setFixedWidth(1)
         sep.setFixedHeight(24)
-        sep.setStyleSheet("background: #4a5568;")
+        sep.setStyleSheet("background: {CONFIG['color_ui_neutral']};")
         layout.addWidget(sep)
 
         self.btn_back = btn("go-previous", "Back", "Return to previous diagram", self.action_back)
@@ -1673,7 +1691,7 @@ class MainWindow(QMainWindow):
     def _build_header(self) -> QWidget:
         header = QWidget()
         header.setFixedHeight(80)
-        header.setStyleSheet(f"background: {COLORS['header_bg'].name()};")
+        header.setStyleSheet(f"background: {QColor(CONFIG['color_header_bg']).name()};")
         layout = QHBoxLayout(header)
         layout.setContentsMargins(16, 8, 16, 8)
 
@@ -1682,15 +1700,15 @@ class MainWindow(QMainWindow):
         left.setSpacing(2)
 
         self.breadcrumb_label = QLabel("⌂")
-        self.breadcrumb_label.setStyleSheet("color: #718096; font-size: 11px;")
+        self.breadcrumb_label.setStyleSheet("color: {CONFIG['color_text']}; font-size: 11px;")
         left.addWidget(self.breadcrumb_label)
 
         self.title_label = QLabel("New Diagram")
-        self.title_label.setStyleSheet("color: #e2e8f0; font-size: 20px; font-weight: bold;")
+        self.title_label.setStyleSheet(f"color: {CONFIG['color_text']}; font-size: 20px; font-weight: bold;")
         left.addWidget(self.title_label)
 
         self.summary_label = QLabel("")
-        self.summary_label.setStyleSheet("color: #a0aec0; font-size: 12px;")
+        self.summary_label.setStyleSheet("color: {CONFIG['color_edge']}; font-size: 12px;")
         self.summary_label.setWordWrap(True)
         left.addWidget(self.summary_label)
 
@@ -1996,17 +2014,17 @@ def main():
     
     # Dark palette base
     palette = QPalette()
-    palette.setColor(QPalette.Window, QColor(CONFIG["palette_window"]))
-    palette.setColor(QPalette.WindowText, QColor(CONFIG["palette_window_text"]))
-    palette.setColor(QPalette.Base, QColor(CONFIG["color_breadcrumb_bg"]))
-    palette.setColor(QPalette.AlternateBase, QColor(CONFIG["palette_alternate_base"]))
-    palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["palette_tooltip_base"]))
-    palette.setColor(QPalette.ToolTipText, QColor(CONFIG["palette_tooltip_text"]))
-    palette.setColor(QPalette.Text, QColor(CONFIG["palette_text"]))
-    palette.setColor(QPalette.Button, QColor(CONFIG["palette_button"]))
-    palette.setColor(QPalette.ButtonText, QColor(CONFIG["palette_button_text"]))
-    palette.setColor(QPalette.Highlight, QColor(CONFIG["palette_highlight"]))
-    palette.setColor(QPalette.HighlightedText, QColor(CONFIG["palette_highlighted_text"]))
+    palette.setColor(QPalette.Window, QColor(CONFIG["color_background"]))
+    palette.setColor(QPalette.WindowText, QColor(CONFIG["color_text"]))
+    palette.setColor(QPalette.Base, QColor(CONFIG["color_base"]))
+    palette.setColor(QPalette.AlternateBase, QColor(CONFIG["color_header_bg"]))
+    palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["color_base"]))
+    palette.setColor(QPalette.ToolTipText, QColor(CONFIG["color_text"]))
+    palette.setColor(QPalette.Text, QColor(CONFIG["color_text"]))
+    palette.setColor(QPalette.Button, QColor(CONFIG["color_base"]))
+    palette.setColor(QPalette.ButtonText, QColor(CONFIG["color_text"]))
+    palette.setColor(QPalette.Highlight, QColor(CONFIG["color_border"]))
+    palette.setColor(QPalette.HighlightedText, QColor(CONFIG["color_highlighted_text"]))
     app.setPalette(palette)
 
     window = MainWindow()
