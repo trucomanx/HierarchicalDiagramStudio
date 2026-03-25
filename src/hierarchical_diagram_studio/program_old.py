@@ -47,97 +47,13 @@ CONFIG_PATH = os.path.join( os.path.expanduser("~"),
                             about.__package__, 
                             "config.json" )
 
-DEFAULT_CONTENT={  
-
-    # TOOLBAR 
+DEFAULT_CONTENT={   
     "toolbar_configure": "Configure",
     "toolbar_configure_tooltip": "Open the configure Json file of program GUI",
     "toolbar_about": "About",
     "toolbar_about_tooltip": "About the program",
     "toolbar_coffee": "Coffee",
     "toolbar_coffee_tooltip": "Buy me a coffee (TrucomanX)",
-    "toolbar_new": "New",
-    "toolbar_new_tooltip": "New diagram (Ctrl+N)",
-    "toolbar_open": "Open",
-    "toolbar_open_tooltip": "Open .hdiagram file (Ctrl+O)",
-    "toolbar_save": "Save",
-    "toolbar_save_tooltip": "Save (Ctrl+S)",
-    "toolbar_save_as": "Save As",
-    "toolbar_save_as_tooltip": "Save as...",
-    "toolbar_back": "Back",
-    "toolbar_back_tooltip": "Return to previous diagram",
-    "toolbar_grid": "Grid",
-    "toolbar_fit": "Adjust",
-    
-    # MENU
-    "menu_edit_node": "Edit title/summary",
-    "menu_add_input": "Add input",
-    "menu_remove_input": "Remove last input",
-    "menu_add_output": "Add output",
-    "menu_remove_output": "Remove last output",
-    "menu_open_subdiagram": "Open subdiagram",
-    "menu_create_subdiagram": "Create subdiagram",
-    "menu_rotate": "Rotate 90°",
-    "menu_delete_node": "Delete",
-    "menu_add_normal_block": "Add Normal Block",
-    "menu_add_merge_block": "Add Merge Block",
-    "menu_add_start_block": "Start Block",
-    "menu_add_end_block": "End Block",
-    "menu_delete_edge": "Delete connection",
-    "menu_clear_edge_points": "Clear intermediate points",
-    
-    # HEADER
-    "header_edit_button": "✏ Edit Info",
-    "header_no_file": "No file",
-    
-    # DIALOG
-    "dialog_edit_node_title": "Edit Block",
-    "dialog_edit_node_label_title": "Title:",
-    "dialog_edit_node_label_summary": "Summary:",
-    "dialog_edit_diagram_title": "Edit Diagram",
-    "dialog_edit_diagram_label_title": "Title:",
-    "dialog_edit_diagram_label_summary": "Summary:",
-    
-    # NODE
-    "node_default_title_normal": "Function",
-    "node_default_title_merge": "Merge",
-    "node_default_title_start": "Start",
-    "node_default_title_end": "End",
-    
-    # MESSAGES
-    "msg_save_before_new": "Modified diagram. Do you want to save before creating a new one?",
-    "msg_save_before_open": "Diagram modified. Do you want to save before opening?",
-    "msg_save_before_exit": "Diagram modified. Do you want to save before exiting?",
-    "msg_save_before_subdiagram": "Save current diagram first before creating subdiagram.",
-    "msg_save_before_open_sub": "Save the current diagram first.",
-    "msg_subdiagram_not_found": "The file '{path}' does not exist.\nDo you want to create a new subdiagram?",
-    "msg_subdiagram_created": "Subdiagram created in '{path}'.\nDo you want to navigate to it?",
-    "msg_title_save": "Save?",
-    "msg_title_exit": "Exit",
-    "msg_title_navigate": "Navigate",
-    "msg_title_file_not_found": "File not found",
-    "msg_title_warning": "Warning",
-    "msg_title_error": "Error",
-    "msg_error_open_file": "Unable to open file:\n{error}",
-    "msg_error_save_file": "Unable to save:\n{error}",
-    "msg_error_open_subdiagram": "Unable to open subdiagram:\n{error}",
-    "msg_error_create_subdiagram": "Unable to create subdiagram:\n{error}",
-    
-    # FILE DIALOG
-    "file_dialog_open_title": "Open Diagram",
-    "file_dialog_save_title": "Save Diagram As",
-    "file_dialog_save_sub_title": "Create Subdiagram",
-    "file_dialog_filter": "Hierarchical Diagram Files (*.hdiagram);;All Files (*)",
-    "file_dialog_filter_hdiagram": "Hierarchical Diagram Files (*.hdiagram)",
-    
-    # STATUS-BAR
-    "statusbar_opened": "Opened: {path}",
-    "statusbar_saved": "Saved: {path}",
-    "statusbar_returned": "Returned to: {title}",
-    "statusbar_navigating": "Navigating to: {title}",
-    "statusbar_ready": "Done | Right click on the area to add blocks | Drag ports to connect | F = Fit | Scroll = Zoom",
-    
-    # WINDOW
     "window_width": 1024,
     "window_height": 800,
     "port_radius": 6,
@@ -146,8 +62,6 @@ DEFAULT_CONTENT={
     "node_min_height": 70,
     "grid_size": 20,
     "edge_hit_tolerance": 8,
-    
-    # COLORS
     "color_normal_bg": "#2d3748",
     "color_normal_border": "#4a90d9",
     "color_normal_title": "#63b3ed",
@@ -730,39 +644,39 @@ class GraphicsNodeItem(QGraphicsItem):
         t = self.node.type
 
         if t in (Node.NODE_NORMAL, Node.NODE_START, Node.NODE_END):
-            act_edit = menu.addAction(QIcon.fromTheme("document-edit"), CONFIG["menu_edit_node"])
+            act_edit = menu.addAction(QIcon.fromTheme("document-edit"), "Editar título/resumo")
             act_edit.triggered.connect(self._edit_title_summary)
 
         if t == Node.NODE_NORMAL:
             menu.addSeparator()
-            act_ai = menu.addAction(QIcon.fromTheme("list-add"), CONFIG["menu_add_input"])
+            act_ai = menu.addAction(QIcon.fromTheme("list-add"), "Adicionar entrada")
             act_ai.triggered.connect(self._add_input)
-            act_ri = menu.addAction(QIcon.fromTheme("list-remove"), CONFIG["menu_remove_input"])
+            act_ri = menu.addAction(QIcon.fromTheme("list-remove"), "Remover última entrada")
             act_ri.triggered.connect(self._remove_input)
-            act_ao = menu.addAction(QIcon.fromTheme("list-add"), CONFIG["menu_add_output"])
+            act_ao = menu.addAction(QIcon.fromTheme("list-add"), "Adicionar saída")
             act_ao.triggered.connect(self._add_output)
-            act_ro = menu.addAction(QIcon.fromTheme("list-remove"), CONFIG["menu_remove_output"])
+            act_ro = menu.addAction(QIcon.fromTheme("list-remove"), "Remover última saída")
             act_ro.triggered.connect(self._remove_output)
             menu.addSeparator()
             if self.node.subdiagram:
-                act_open = menu.addAction(QIcon.fromTheme("document-open"), CONFIG["menu_open_subdiagram"])
+                act_open = menu.addAction(QIcon.fromTheme("document-open"), "Abrir subdiagrama")
                 act_open.triggered.connect(self._open_subdiagram)
             else:
-                act_create = menu.addAction(QIcon.fromTheme("document-new"), CONFIG["menu_create_subdiagram"])
+                act_create = menu.addAction(QIcon.fromTheme("document-new"), "Criar subdiagrama")
                 act_create.triggered.connect(self._create_subdiagram)
 
         if t == Node.NODE_MERGE:
             menu.addSeparator()
-            act_ai = menu.addAction(QIcon.fromTheme("list-add"), CONFIG["menu_add_input"])
+            act_ai = menu.addAction(QIcon.fromTheme("list-add"), "Adicionar entrada")
             act_ai.triggered.connect(self._add_input)
-            act_ri = menu.addAction(QIcon.fromTheme("list-remove"), CONFIG["menu_remove_input"])
+            act_ri = menu.addAction(QIcon.fromTheme("list-remove"), "Remover última entrada")
             act_ri.triggered.connect(self._remove_input)
 
         menu.addSeparator()
-        act_rot = menu.addAction(QIcon.fromTheme("object-rotate-right"), CONFIG["menu_rotate"])
+        act_rot = menu.addAction(QIcon.fromTheme("object-rotate-right"), "Rotacionar 90°")
         act_rot.triggered.connect(self._rotate)
         menu.addSeparator()
-        act_del = menu.addAction(QIcon.fromTheme("edit-delete"), CONFIG["menu_delete_node"])
+        act_del = menu.addAction(QIcon.fromTheme("edit-delete"), "Deletar")
         act_del.triggered.connect(self._delete)
 
         menu.exec_(event.screenPos())
@@ -1047,9 +961,9 @@ class GraphicsEdgeItem(QGraphicsPathItem):
 
     def _context_menu(self, event):
         menu = QMenu()
-        act_del = menu.addAction(QIcon.fromTheme("edit-delete"), CONFIG["menu_delete_edge"])
+        act_del = menu.addAction(QIcon.fromTheme("edit-delete"), "Deletar conexão")
         act_del.triggered.connect(self._delete)
-        act_clr = menu.addAction(QIcon.fromTheme("edit-clear"), CONFIG["menu_clear_edge_points"])
+        act_clr = menu.addAction(QIcon.fromTheme("edit-clear"), "Limpar pontos intermediários")
         act_clr.triggered.connect(self._clear_points)
         menu.exec_(event.screenPos())
 
@@ -1135,10 +1049,10 @@ class DiagramScene(QGraphicsScene):
 
     def add_new_node(self, node_type: str, pos: QPointF):
         titles = {
-            Node.NODE_NORMAL: CONFIG["node_default_title_normal"],
-            Node.NODE_MERGE:  CONFIG["node_default_title_merge"],
-            Node.NODE_START:  CONFIG["node_default_title_start"],
-            Node.NODE_END:    CONFIG["node_default_title_end"]
+            Node.NODE_NORMAL: "Função",
+            Node.NODE_MERGE: "Merge",
+            Node.NODE_START: "Início",
+            Node.NODE_END: "Fim"
         }
         node = Node(node_type, titles.get(node_type, "Node"), "", pos.x(), pos.y())
         self.diagram.add_node(node)
@@ -1287,10 +1201,10 @@ class DiagramScene(QGraphicsScene):
             # Background context menu - add new nodes
             menu = QMenu()
             pos = event.scenePos()
-            act_normal = menu.addAction(QIcon.fromTheme("list-add"), CONFIG["menu_add_normal_block"])
-            act_merge = menu.addAction(QIcon.fromTheme("list-add"), CONFIG["menu_add_merge_block"])
-            act_start = menu.addAction(QIcon.fromTheme("media-playback-start"), CONFIG["menu_add_start_block"])
-            act_end = menu.addAction(QIcon.fromTheme("media-playback-stop"), CONFIG["menu_add_end_block"])
+            act_normal = menu.addAction(QIcon.fromTheme("list-add"), "Adicionar Bloco Normal")
+            act_merge = menu.addAction(QIcon.fromTheme("list-add"), "Adicionar Bloco Merge")
+            act_start = menu.addAction(QIcon.fromTheme("media-playback-start"), "Bloco Start")
+            act_end = menu.addAction(QIcon.fromTheme("media-playback-stop"), "Bloco End")
 
             act_normal.triggered.connect(lambda: self.add_new_node(Node.NODE_NORMAL, pos))
             act_merge.triggered.connect(lambda: self.add_new_node(Node.NODE_MERGE, pos))
@@ -1394,7 +1308,7 @@ class DiagramView(QGraphicsView):
 class EditNodeDialog(QDialog):
     def __init__(self, title: str, summary: str, show_summary: bool = True):
         super().__init__()
-        self.setWindowTitle(CONFIG["dialog_edit_node_title"])
+        self.setWindowTitle("Editar Bloco")
         self.setMinimumWidth(400)
         self.setMinimumHeight(250)
 
@@ -1404,13 +1318,13 @@ class EditNodeDialog(QDialog):
         main_layout.addLayout(form_layout)
 
         self.title_edit = QLineEdit(title)
-        form_layout.addRow(CONFIG["dialog_edit_node_label_title"], self.title_edit)
+        form_layout.addRow("Título:", self.title_edit)
 
         self.summary_edit = QTextEdit()
         self.summary_edit.setPlainText(summary)
         self.summary_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         if show_summary:
-            form_layout.addRow(CONFIG["dialog_edit_node_label_summary"], self.summary_edit)
+            form_layout.addRow("Resumo:", self.summary_edit)
             main_layout.setStretchFactor(form_layout, 1)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -1453,7 +1367,7 @@ QPushButton:hover {{
 class EditDiagramDialog(QDialog):
     def __init__(self, title: str, summary: str):
         super().__init__()
-        self.setWindowTitle(CONFIG["dialog_edit_diagram_title"])
+        self.setWindowTitle("Editar Diagrama")
         self.setMinimumWidth(450)
         self.setMinimumHeight(280)
 
@@ -1463,12 +1377,12 @@ class EditDiagramDialog(QDialog):
         main_layout.addLayout(form_layout)
 
         self.title_edit = QLineEdit(title)
-        form_layout.addRow(CONFIG["dialog_edit_diagram_label_title"], self.title_edit)
+        form_layout.addRow("Título:", self.title_edit)
 
         self.summary_edit = QTextEdit()
         self.summary_edit.setPlainText(summary)
         self.summary_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        form_layout.addRow(CONFIG["dialog_edit_diagram_label_summary"], self.summary_edit)
+        form_layout.addRow("Resumo:", self.summary_edit)
         main_layout.setStretchFactor(form_layout, 1)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -1646,7 +1560,8 @@ class MainWindow(QMainWindow):
 
         # Status bar
         self.statusBar().setStyleSheet(f"background: {CONFIG['color_header_bg']}; color: {CONFIG['color_text']}; font-size: 11px;")
-        self.statusBar().showMessage(CONFIG["statusbar_ready"])
+        self.statusBar().showMessage("Done | Right click on the area to add blocks | "
+                                     "Drag ports to connect | F = Fit | Scroll = Zoom")
 
     def _build_toolbar(self) -> QWidget:
         bar = QWidget()
@@ -1668,10 +1583,10 @@ class MainWindow(QMainWindow):
             b.setIconSize(QSize(16, 16))
             return b
 
-        self.btn_new     = btn("document-new",      CONFIG["toolbar_new"],     CONFIG["toolbar_new_tooltip"],     self.action_new)
-        self.btn_open    = btn("document-open",     CONFIG["toolbar_open"],    CONFIG["toolbar_open_tooltip"],    self.action_open)
-        self.btn_save    = btn("document-save",     CONFIG["toolbar_save"],    CONFIG["toolbar_save_tooltip"],    self.action_save)
-        self.btn_save_as = btn("document-save-as",  CONFIG["toolbar_save_as"], CONFIG["toolbar_save_as_tooltip"], self.action_save_as)
+        self.btn_new     = btn("document-new",      "New",    "New diagram (Ctrl+N)",         self.action_new)
+        self.btn_open    = btn("document-open",     "Open",   "Open .hdiagram file (Ctrl+O)", self.action_open)
+        self.btn_save    = btn("document-save",     "Save",   "Save (Ctrl+S)",                self.action_save)
+        self.btn_save_as = btn("document-save-as",  "Save As","Save as...",                   self.action_save_as)
 
         layout.addWidget(self.btn_new)
         layout.addWidget(self.btn_open)
@@ -1685,14 +1600,14 @@ class MainWindow(QMainWindow):
         sep.setStyleSheet("background: {CONFIG['color_ui_neutral']};")
         layout.addWidget(sep)
 
-        self.btn_back = btn("go-previous", CONFIG["toolbar_back"], CONFIG["toolbar_back_tooltip"], self.action_back)
+        self.btn_back = btn("go-previous", "Back", "Return to previous diagram", self.action_back)
         self.btn_back.setEnabled(False)
         layout.addWidget(self.btn_back)
 
         layout.addStretch()
 
         # Grid toggle
-        self.btn_grid = QPushButton(CONFIG["toolbar_grid"])
+        self.btn_grid = QPushButton("Grid")
         grid_icon = QIcon.fromTheme("view-grid")
         if not grid_icon.isNull():
             self.btn_grid.setIcon(grid_icon)
@@ -1703,7 +1618,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.btn_grid)
 
         # Fit view
-        btn_fit = QPushButton(CONFIG["toolbar_fit"])
+        btn_fit = QPushButton("Adjust")
         fit_icon = QIcon.fromTheme("zoom-fit-best")
         if not fit_icon.isNull():
             btn_fit.setIcon(fit_icon)
@@ -1712,7 +1627,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_fit)
 
         # Configure
-        btn_configure = QPushButton(CONFIG["toolbar_configure"])
+        btn_configure = QPushButton("Configure")
         configure_icon = QIcon.fromTheme("document-properties")
         if not configure_icon.isNull():
             btn_configure.setIcon(configure_icon)
@@ -1721,7 +1636,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_configure)
 
         # Coffee
-        btn_coffee = QPushButton(CONFIG["toolbar_coffee"])
+        btn_coffee = QPushButton("Coffee")
         coffee_icon = QIcon.fromTheme("emblem-favorite")
         if not coffee_icon.isNull():
             btn_coffee.setIcon(coffee_icon)
@@ -1730,7 +1645,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_coffee)
 
         # About
-        btn_about = QPushButton(CONFIG["toolbar_about"])
+        btn_about = QPushButton("About")
         about_icon = QIcon.fromTheme("help-about")
         if not about_icon.isNull():
             btn_about.setIcon(about_icon)
@@ -1800,7 +1715,7 @@ class MainWindow(QMainWindow):
         layout.addLayout(left, 1)
 
         # Edit button
-        self.btn_edit_diagram = QPushButton(CONFIG["header_edit_button"])
+        self.btn_edit_diagram = QPushButton("✏ Edit Info")
         self.btn_edit_diagram.setFixedHeight(32)
         self.btn_edit_diagram.clicked.connect(self._edit_diagram_info)
         layout.addWidget(self.btn_edit_diagram)
@@ -1812,7 +1727,7 @@ class MainWindow(QMainWindow):
         summary_html = (self.current_diagram.summary or "").replace("\n", "<br>")
         self.summary_label.setText(summary_html)
         modified_indicator = " *" if self._modified else ""
-        file_info = os.path.basename(self.current_filepath) if self.current_filepath else CONFIG["header_no_file"]
+        file_info = os.path.basename(self.current_filepath) if self.current_filepath else "No file"
         self.setWindowTitle(f"Hierarchical Diagram Editor — {file_info}{modified_indicator}")
 
     def _update_breadcrumb(self):
@@ -1852,8 +1767,8 @@ class MainWindow(QMainWindow):
     def action_new(self):
         if self._modified:
             reply = QMessageBox.question(
-                self, CONFIG["msg_title_save"],
-                CONFIG["msg_save_before_new"],
+                self, "Save?",
+                "Modified diagram. Do you want to save before creating a new one?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
@@ -1873,8 +1788,8 @@ class MainWindow(QMainWindow):
     def action_open(self):
         if self._modified:
             reply = QMessageBox.question(
-                self, CONFIG["msg_title_save"],
-                CONFIG["msg_save_before_open"],
+                self, "Save?",
+                "Diagram modified. Do you want to save before opening?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
@@ -1883,7 +1798,7 @@ class MainWindow(QMainWindow):
                 return
 
         filepath, _ = QFileDialog.getOpenFileName(
-            self, CONFIG["file_dialog_open_title"], "", CONFIG["file_dialog_filter"])
+            self, "Open Diagram", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
         if filepath:
             self._load_file(filepath)
 
@@ -1898,9 +1813,9 @@ class MainWindow(QMainWindow):
             self._update_header()
             self._update_breadcrumb()
             self._update_back_button()
-            self.statusBar().showMessage(CONFIG["statusbar_opened"].format(path=filepath))
+            self.statusBar().showMessage(f"Opened: {filepath}")
         except Exception as ex:
-            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_open_file"].format(error=ex))
+            QMessageBox.critical(self, "Error", f"Unable to open file:\n{ex}")
 
     def action_save(self):
         if not self.current_filepath:
@@ -1910,7 +1825,7 @@ class MainWindow(QMainWindow):
 
     def action_save_as(self):
         filepath, _ = QFileDialog.getSaveFileName(
-            self, CONFIG["file_dialog_save_title"], "", CONFIG["file_dialog_filter"])
+            self, "Save Diagram As", "", "Hierarchical Diagram Files (*.hdiagram);;All Files (*)")
         if filepath:
             if not filepath.endswith(".hdiagram"):
                 filepath += ".hdiagram"
@@ -1922,9 +1837,9 @@ class MainWindow(QMainWindow):
             DiagramSerializer.save(self.current_diagram, filepath)
             self._modified = False
             self._update_header()
-            self.statusBar().showMessage(CONFIG["statusbar_saved"].format(path=filepath))
+            self.statusBar().showMessage(f"Saved: {filepath}")
         except Exception as ex:
-            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_save_file"].format(error=ex))
+            QMessageBox.critical(self, "Error", f"Unable to save:\n{ex}")
 
     def action_back(self):
         if not self.nav_manager.can_go_back():
@@ -1942,7 +1857,7 @@ class MainWindow(QMainWindow):
             self._update_header()
             self._update_breadcrumb()
             self._update_back_button()
-            self.statusBar().showMessage(CONFIG["statusbar_returned"].format(title=self.current_diagram.title))
+            self.statusBar().showMessage(f"Returned to: {self.current_diagram.title}")
 
     def create_subdiagram_for_node(self, node_item: GraphicsNodeItem):
         node = node_item.node
@@ -1951,8 +1866,8 @@ class MainWindow(QMainWindow):
 
         # Ask for save location
         if not self.current_filepath:
-            QMessageBox.warning(self, CONFIG["msg_title_warning"],
-                                CONFIG["msg_save_before_subdiagram"])
+            QMessageBox.warning(self, "Warning",
+                                "Save current diagram first before creating subdiagram.")
             self.action_save()
             if not self.current_filepath:
                 return
@@ -1960,8 +1875,8 @@ class MainWindow(QMainWindow):
         base_dir = os.path.dirname(self.current_filepath)
         default_name = node.title.replace(" ", "_").lower() + ".hdiagram"
         filepath, _ = QFileDialog.getSaveFileName(
-            self, CONFIG["file_dialog_save_sub_title"], os.path.join(base_dir, default_name),
-            CONFIG["file_dialog_filter_hdiagram"]
+            self, "Create Subdiagram", os.path.join(base_dir, default_name),
+            "Hierarchical Diagram Files (*.hdiagram)"
         )
         if not filepath:
             return
@@ -1980,7 +1895,7 @@ class MainWindow(QMainWindow):
         try:
             DiagramSerializer.save(new_diagram, filepath)
         except Exception as ex:
-            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_create_subdiagram"].format(error=ex))
+            QMessageBox.critical(self, "Error", f"Unable to create subdiagram:\n{ex}")
             return
 
         # Set relative path
@@ -1992,8 +1907,8 @@ class MainWindow(QMainWindow):
 
         # Navigate into subdiagram
         reply = QMessageBox.question(
-            self, CONFIG["msg_title_navigate"],
-            CONFIG["msg_subdiagram_created"].format(path=filepath),
+            self, "Navigate",
+            f"Subdiagram created in '{filepath}'.\nDo you want to navigate to it?",
             QMessageBox.Yes | QMessageBox.No
         )
         if reply == QMessageBox.Yes:
@@ -2005,7 +1920,7 @@ class MainWindow(QMainWindow):
             return
 
         if not self.current_filepath:
-            QMessageBox.warning(self, CONFIG["msg_title_warning"], CONFIG["msg_save_before_open_sub"])
+            QMessageBox.warning(self, "Warning", "Save the current diagram first.")
             return
 
         base_dir = os.path.dirname(self.current_filepath)
@@ -2014,8 +1929,8 @@ class MainWindow(QMainWindow):
 
         if not os.path.exists(sub_path):
             reply = QMessageBox.question(
-                self, CONFIG["msg_title_file_not_found"],
-                CONFIG["msg_subdiagram_not_found"].format(path=sub_path),
+                self, "File not found",
+                f"The file '{sub_path}' does not exist.\nDo you want to create a new subdiagram?",
                 QMessageBox.Yes | QMessageBox.No
             )
             if reply == QMessageBox.Yes:
@@ -2026,7 +1941,7 @@ class MainWindow(QMainWindow):
             sub_diagram = DiagramSerializer.load(sub_path)
             self._navigate_to(sub_path, sub_diagram)
         except Exception as ex:
-            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_open_subdiagram"].format(error=ex))
+            QMessageBox.critical(self, "Error", f"Unable to open subdiagram:\n{ex}")
 
     def _navigate_to(self, filepath: str, diagram: Diagram):
         # Save current state to stack
@@ -2041,13 +1956,13 @@ class MainWindow(QMainWindow):
         self._update_header()
         self._update_breadcrumb()
         self._update_back_button()
-        self.statusBar().showMessage(CONFIG["statusbar_navigating"].format(title=diagram.title))
+        self.statusBar().showMessage(f"Navigating to: {diagram.title}")
 
     def closeEvent(self, event):
         if self._modified:
             reply = QMessageBox.question(
-                self, CONFIG["msg_title_exit"],
-                CONFIG["msg_save_before_exit"],
+                self, "Exit",
+                "Diagram modified. Do you want to save before exiting?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
             if reply == QMessageBox.Yes:
