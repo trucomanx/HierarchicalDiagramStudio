@@ -29,6 +29,7 @@ from PyQt5.QtGui import (
     QPolygonF, QTransform, QCursor, QPalette, QKeySequence,
     QLinearGradient, QRadialGradient, QIcon, QDesktopServices
 )
+from PyQt5.QtSvg import QSvgGenerator
 from PyQt5.QtCore import QSize
 
 import hierarchical_diagram_studio.about as about
@@ -68,6 +69,18 @@ DEFAULT_CONTENT={
     "toolbar_back_tooltip": "Return to previous diagram",
     "toolbar_grid": "Grid",
     "toolbar_fit": "Adjust",
+    "toolbar_export_svg": "Export SVG",
+    "toolbar_export_svg_tooltip": "Export diagram as SVG image",
+    "file_dialog_export_svg_title": "Export as SVG",
+    "file_dialog_filter_svg": "SVG Files (*.svg);;All Files (*)",
+    "statusbar_svg_exported": "SVG exported: {path}",
+    "msg_error_export_svg": "Unable to export SVG:\n{error}",
+    "toolbar_export_dot": "Export DOT",
+    "toolbar_export_dot_tooltip": "Export diagram as Graphviz .dot file",
+    "file_dialog_export_dot_title": "Export as Graphviz DOT",
+    "file_dialog_filter_dot": "Graphviz DOT Files (*.dot);;All Files (*)",
+    "statusbar_dot_exported": "DOT exported: {path}",
+    "msg_error_export_dot": "Unable to export DOT:\n{error}",
     
     # MENU
     "menu_edit_node": "Edit title/summary",
@@ -142,9 +155,9 @@ DEFAULT_CONTENT={
     "statusbar_ready": "Done | Right click on the area to add blocks | Drag ports to connect | F = Fit | Scroll = Zoom",
     
     # WINDOW
-    "window_width": 1024,
-    "window_height": 800,
-    "wiew_min_height": 400,
+    "window_width": 1280,
+    "window_height": 720,
+    "wiew_min_height": 300,
     "port_radius": 6,
     "port_hit_radius": 10,
     "node_default_width": 140,
@@ -1640,11 +1653,15 @@ class MainWindow(QMainWindow):
         self.btn_open    = btn("document-open",     CONFIG["toolbar_open"],    CONFIG["toolbar_open_tooltip"],    self.action_open)
         self.btn_save    = btn("document-save",     CONFIG["toolbar_save"],    CONFIG["toolbar_save_tooltip"],    self.action_save)
         self.btn_save_as = btn("document-save-as",  CONFIG["toolbar_save_as"], CONFIG["toolbar_save_as_tooltip"], self.action_save_as)
+        self.btn_export_svg = btn("image-x-generic", CONFIG["toolbar_export_svg"], CONFIG["toolbar_export_svg_tooltip"], self.action_export_svg)
+        self.btn_export_dot = btn("text-x-generic",  CONFIG["toolbar_export_dot"], CONFIG["toolbar_export_dot_tooltip"], self.action_export_dot)
 
         layout.addWidget(self.btn_new)
         layout.addWidget(self.btn_open)
         layout.addWidget(self.btn_save)
         layout.addWidget(self.btn_save_as)
+        layout.addWidget(self.btn_export_svg)
+        layout.addWidget(self.btn_export_dot)
 
         # Separator
         sep = QWidget()
@@ -1893,6 +1910,167 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(CONFIG["statusbar_saved"].format(path=filepath))
         except Exception as ex:
             QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_save_file"].format(error=ex))
+
+    def action_export_svg(self):
+        filepath, _ = QFileDialog.getSaveFileName(
+            self, CONFIG["file_dialog_export_svg_title"], "", CONFIG["file_dialog_filter_svg"])
+        if not filepath:
+            return
+        if not filepath.endswith(".svg"):
+            filepath += ".svg"
+        try:
+            scene = self.view.scene()
+            if scene is None:
+                return
+            scene_rect = scene.itemsBoundingRect()
+            margin = 20
+            scene_rect.adjust(-margin, -margin, margin, margin)
+
+            w = int(scene_rect.width())
+            h = int(scene_rect.height())
+
+            generator = QSvgGenerator()
+            generator.setFileName(filepath)
+            generator.setSize(scene_rect.size().toSize())
+            generator.setViewBox(QRectF(0, 0, w, h))
+            generator.setTitle(self.current_diagram.title)
+            generator.setDescription(self.current_diagram.summary or "")
+
+            painter = QPainter()
+            painter.begin(generator)
+            painter.setRenderHint(QPainter.Antialiasing)
+            target_rect = QRectF(0, 0, w, h)
+            scene.render(painter, target=target_rect, source=scene_rect)
+            painter.end()
+
+            self.statusBar().showMessage(CONFIG["statusbar_svg_exported"].format(path=filepath))
+        except Exception as ex:
+            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_export_svg"].format(error=ex))
+
+    def action_export_dot(self):
+        filepath, _ = QFileDialog.getSaveFileName(
+            self, CONFIG["file_dialog_export_dot_title"], "", CONFIG["file_dialog_filter_dot"])
+        if not filepath:
+            return
+        if not filepath.endswith(".dot"):
+            filepath += ".dot"
+        try:
+            dot = self._diagram_to_dot(self.current_diagram)
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(dot)
+            self.statusBar().showMessage(CONFIG["statusbar_dot_exported"].format(path=filepath))
+        except Exception as ex:
+            QMessageBox.critical(self, CONFIG["msg_title_error"], CONFIG["msg_error_export_dot"].format(error=ex))
+
+    def _diagram_to_dot(self, diagram: Diagram) -> str:
+        # Node type -> Graphviz shape mapping
+        SHAPE = {
+            Node.NODE_NORMAL: "box",
+            Node.NODE_MERGE:  "diamond",
+            Node.NODE_START:  "ellipse",
+            Node.NODE_END:    "doublecircle",
+        }
+        COLOR = {
+            Node.NODE_NORMAL: CONFIG["color_normal_border"],
+            Node.NODE_MERGE:  CONFIG["color_merge_border"],
+            Node.NODE_START:  CONFIG["color_start_border"],
+            Node.NODE_END:    CONFIG["color_end_border"],
+        }
+        FONTCOLOR = {
+            Node.NODE_NORMAL: CONFIG["color_normal_title"],
+            Node.NODE_MERGE:  CONFIG["color_merge_title"],
+            Node.NODE_START:  CONFIG["color_start_title"],
+            Node.NODE_END:    CONFIG["color_end_title"],
+        }
+        FILLCOLOR = {
+            Node.NODE_NORMAL: CONFIG["color_normal_bg"],
+            Node.NODE_MERGE:  CONFIG["color_merge_bg"],
+            Node.NODE_START:  CONFIG["color_start_bg"],
+            Node.NODE_END:    CONFIG["color_end_bg"],
+        }
+
+        def esc(s: str) -> str:
+            """Escape a string for use inside DOT double-quoted labels."""
+            return s.replace("\\", "\\\\").replace('"', '\\"').replace('\n', '\\n')
+
+        # Build a short stable id from the uuid (DOT node names can't have hyphens)
+        def dot_id(node_id: str) -> str:
+            return "n_" + node_id.replace("-", "_")
+
+        lines = []
+        graph_label = esc(diagram.title)
+        if diagram.summary:
+            graph_label += "\\n" + esc(diagram.summary)
+
+        lines.append('digraph {')
+        lines.append(f'    label="{graph_label}";')
+        lines.append( '    labelloc="t";')
+        lines.append( '    fontname="Helvetica";')
+        lines.append( '    bgcolor="#1a1a2e";')
+        lines.append( '    rankdir=LR;')
+        lines.append( '    node [fontname="Helvetica" style="filled" penwidth=1.5];')
+        lines.append( '    edge [color="#a0aec0" fontcolor="#a0aec0" fontname="Helvetica" fontsize=9];')
+        lines.append('')
+
+        # Nodes
+        for node in diagram.nodes.values():
+            nid    = dot_id(node.id)
+            shape  = SHAPE.get(node.type, "box")
+            color  = COLOR.get(node.type, "#ffffff")
+            fc     = FONTCOLOR.get(node.type, "#ffffff")
+            fill   = FILLCOLOR.get(node.type, "#2d3748")
+
+            # Build label: title + optional summary + optional subdiagram indicator
+            label = esc(node.title)
+            if node.summary:
+                label += "\\n" + esc(node.summary)
+            if node.subdiagram:
+                label += "\\n[» " + esc(node.subdiagram) + "]"
+
+            # Position hint (Graphviz uses inches; divide pixels by 72)
+            px = node.position[0] / 72.0
+            py = node.position[1] / 72.0
+
+            lines.append(
+                f'    {nid} ['
+                f'label="{label}" '
+                f'shape="{shape}" '
+                f'color="{color}" '
+                f'fontcolor="{fc}" '
+                f'fillcolor="{fill}" '
+                f'pos="{px:.2f},{py:.2f}!" '
+                f'];'
+            )
+
+        lines.append('')
+
+        # Edges
+        for edge in diagram.edges:
+            src_node = diagram.nodes.get(edge.source_node_id)
+            tgt_node = diagram.nodes.get(edge.target_node_id)
+            if src_node is None or tgt_node is None:
+                continue
+
+            src_id = dot_id(edge.source_node_id)
+            tgt_id = dot_id(edge.target_node_id)
+
+            # Port names for the label
+            src_port = ""
+            tgt_port = ""
+            if edge.source_output_index < len(src_node.outputs):
+                src_port = src_node.outputs[edge.source_output_index]
+            if edge.target_input_index < len(tgt_node.inputs):
+                tgt_port = tgt_node.inputs[edge.target_input_index]
+
+            edge_label = ""
+            if src_port or tgt_port:
+                edge_label = f'{esc(src_port)}→{esc(tgt_port)}'
+
+            attr = f'label="{edge_label}" color="{CONFIG["color_edge"]}"'
+            lines.append(f'    {src_id} -> {tgt_id} [{attr}];')
+
+        lines.append('}')
+        return '\n'.join(lines) + '\n'
 
     def action_back(self):
         if not self.nav_manager.can_go_back():
