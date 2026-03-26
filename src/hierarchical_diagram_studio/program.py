@@ -103,6 +103,10 @@ DEFAULT_CONTENT={
     "node_default_title_merge": "Merge",
     "node_default_title_start": "Start",
     "node_default_title_end": "End",
+    "node_new_diagram_title": "New Diagram",
+    "node_subdiagram_title_suffix": " -- Subdiagram",
+    "node_subdiagram_summary_prefix": "Subdiagram of '",
+    "node_subdiagram_summary_suffix": "'",
     
     # MESSAGES
     "msg_save_before_new": "Modified diagram. Do you want to save before creating a new one?",
@@ -166,16 +170,16 @@ DEFAULT_CONTENT={
     "color_edge": "#a0aec0",
     "color_edge_selected": "#ffd700",
     "color_edge_point": "#ffd700",
-    "color_text": "#e2e8f0",
     "color_subdiagram": "#9f7aea",
     "color_grid": "#2a2a3e",
-    "color_base": "#2d3748",
-    "color_border": "#4a90d9",
+    "color_ui_background": "#1a1a2e",
+    "color_ui_header": "#1e2433",
+    "color_ui_base": "#2d3748",
     "color_ui_neutral": "#4a5568",
-    "color_hover": "#63b3ed",
-    "color_highlighted_text": "#ffffff",
-    "color_background": "#1a1a2e",
-    "color_header_bg": "#1e2433"
+    "color_ui_hover": "#63b3ed",
+    "color_ui_text": "#e2e8f0",
+    "color_ui_highlighted_text": "#ffffff",
+    "color_ui_border": "#4a90d9",
 }
 
 configure.verify_default_config(CONFIG_PATH,default_content=DEFAULT_CONTENT)
@@ -668,7 +672,7 @@ class GraphicsNodeItem(QGraphicsItem):
 
         # Summary text (only for normal)
         if self.node.type == Node.NODE_NORMAL and self.node.summary:
-            painter.setPen(QPen(QColor(CONFIG["color_text"]).darker(110)))
+            painter.setPen(QPen(QColor(CONFIG["color_ui_text"]).darker(110)))
             font2 = QFont("Segoe UI", 7)
             painter.setFont(font2)
             summary_rect = QRectF(-hw + 8, 2, hw * 2 - 16, hh - 8)
@@ -1093,7 +1097,7 @@ class DiagramScene(QGraphicsScene):
         super().__init__()
         self.diagram = diagram
         self.main_window = main_window
-        self.setBackgroundBrush(QBrush(QColor(CONFIG["color_background"])))
+        self.setBackgroundBrush(QBrush(QColor(CONFIG["color_ui_background"])))
 
         self._node_items: Dict[str, GraphicsNodeItem] = {}
         self._edge_items: Dict[str, GraphicsEdgeItem] = {}
@@ -1420,14 +1424,14 @@ class EditNodeDialog(QDialog):
 
         self.setStyleSheet(f"""
 QDialog {{ 
-    background: {CONFIG['color_base']}; 
-    color: {CONFIG['color_text']}; 
+    background: {CONFIG['color_ui_base']}; 
+    color: {CONFIG['color_ui_text']}; 
 }}
 
 QLineEdit, QTextEdit {{ 
-    background: {CONFIG['color_background']}; 
-    color: {CONFIG['color_text']};
-    border: 1px solid {CONFIG['color_border']}; 
+    background: {CONFIG['color_ui_background']}; 
+    color: {CONFIG['color_ui_text']};
+    border: 1px solid {CONFIG['color_ui_border']}; 
     border-radius: 4px;
     padding: 4px; 
 }}
@@ -1437,7 +1441,7 @@ QLabel {{
 }}
 
 QPushButton {{ 
-    background: {CONFIG['color_border']}; 
+    background: {CONFIG['color_ui_border']}; 
     color: white; 
     border-radius: 4px;
     padding: 6px 16px; 
@@ -1445,7 +1449,7 @@ QPushButton {{
 }}
 
 QPushButton:hover {{ 
-    background: {CONFIG['color_hover']}; 
+    background: {CONFIG['color_ui_hover']}; 
 }}
         """)
 
@@ -1478,14 +1482,14 @@ class EditDiagramDialog(QDialog):
 
         self.setStyleSheet(f"""
 QDialog {{ 
-    background: {CONFIG['color_base']}; 
-    color: {CONFIG['color_text']}; 
+    background: {CONFIG['color_ui_base']}; 
+    color: {CONFIG['color_ui_text']}; 
 }}
 
 QLineEdit, QTextEdit {{ 
-    background: {CONFIG['color_background']}; 
-    color: {CONFIG['color_text']};
-    border: 1px solid {CONFIG['color_border']}; 
+    background: {CONFIG['color_ui_background']}; 
+    color: {CONFIG['color_ui_text']};
+    border: 1px solid {CONFIG['color_ui_border']}; 
     border-radius: 4px;
     padding: 4px; 
 }}
@@ -1495,7 +1499,7 @@ QLabel {{
 }}
 
 QPushButton {{ 
-    background: {CONFIG['color_border']}; 
+    background: {CONFIG['color_ui_border']}; 
     color: white; 
     border-radius: 4px;
     padding: 6px 16px; 
@@ -1503,7 +1507,7 @@ QPushButton {{
 }}
 
 QPushButton:hover {{ 
-    background: {CONFIG['color_hover']}; 
+    background: {CONFIG['color_ui_hover']}; 
 }}
         """)
 
@@ -1513,15 +1517,15 @@ QPushButton:hover {{
 # ============================================================
 
 STYLE_SHEET = f"""
-QMainWindow {{ background: {CONFIG['color_background']}; }}
+QMainWindow {{ background: {CONFIG['color_ui_background']}; }}
 QWidget {{
-    background: {CONFIG['color_background']}; 
-    color: {CONFIG['color_text']}; 
+    background: {CONFIG['color_ui_background']}; 
+    color: {CONFIG['color_ui_text']}; 
     font-family: 'Segoe UI', Arial, sans-serif; 
 }}
 
 QPushButton {{
-    background: {CONFIG['color_base']};
+    background: {CONFIG['color_ui_base']};
     color: {CONFIG['color_edge']};
     border: 1px solid {CONFIG['color_ui_neutral']};
     border-radius: 5px;
@@ -1531,22 +1535,22 @@ QPushButton {{
 
 QPushButton:hover {{
     background: {CONFIG['color_ui_neutral']};
-    color: {CONFIG['color_text']};
+    color: {CONFIG['color_ui_text']};
 }}
 
 QPushButton:pressed {{
-    background: {CONFIG['color_border']};
+    background: {CONFIG['color_ui_border']};
     color: white;
 }}
 
 QPushButton:disabled {{
     color: {CONFIG['color_ui_neutral']};
-    border-color: {CONFIG['color_base']};
+    border-color: {CONFIG['color_ui_base']};
 }}
 
 QToolBar {{
-    background: {CONFIG['color_header_bg']};
-    border-bottom: 1px solid {CONFIG['color_base']};
+    background: {CONFIG['color_ui_header']};
+    border-bottom: 1px solid {CONFIG['color_ui_base']};
     spacing: 4px;
     padding: 4px;
 }}
@@ -1554,7 +1558,7 @@ QToolBar {{
 QLabel {{ background: transparent; }}
 
 QScrollBar:vertical {{
-    background: {CONFIG['color_background']};
+    background: {CONFIG['color_ui_background']};
     width: 8px;
 }}
 
@@ -1564,7 +1568,7 @@ QScrollBar::handle:vertical {{
 }}
 
 QScrollBar:horizontal {{
-    background: {CONFIG['color_background']};
+    background: {CONFIG['color_ui_background']};
     height: 8px;
 }}
 
@@ -1574,14 +1578,14 @@ QScrollBar::handle:horizontal {{
 }}
 
 QMenu {{
-    background: {CONFIG['color_base']};
+    background: {CONFIG['color_ui_base']};
     border: 1px solid {CONFIG['color_ui_neutral']};
-    color: {CONFIG['color_text']};
+    color: {CONFIG['color_ui_text']};
     padding: 4px;
 }}
 
 QMenu::item:selected {{
-    background: {CONFIG['color_border']};
+    background: {CONFIG['color_ui_border']};
     border-radius: 3px;
 }}
 
@@ -1607,7 +1611,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(self.icon_path)) 
 
         self.current_filepath: Optional[str] = None
-        self.current_diagram: Diagram = Diagram("New Diagram", "")
+        self.current_diagram: Diagram = Diagram(CONFIG["node_new_diagram_title"], "")
         self.nav_manager = NavigationManager()
         self._modified = False
 
@@ -1636,7 +1640,7 @@ class MainWindow(QMainWindow):
         # Divider
         divider = QWidget()
         divider.setFixedHeight(1)
-        divider.setStyleSheet(f"background: {CONFIG['color_base']};")
+        divider.setStyleSheet(f"background: {CONFIG['color_ui_base']};")
         main_layout.addWidget(divider)
 
         # Graphics view
@@ -1645,13 +1649,13 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.view, 1)
 
         # Status bar
-        self.statusBar().setStyleSheet(f"background: {CONFIG['color_header_bg']}; color: {CONFIG['color_text']}; font-size: 11px;")
+        self.statusBar().setStyleSheet(f"background: {CONFIG['color_ui_header']}; color: {CONFIG['color_ui_text']}; font-size: 11px;")
         self.statusBar().showMessage(CONFIG["statusbar_ready"])
 
     def _build_toolbar(self) -> QWidget:
         bar = QWidget()
         bar.setFixedHeight(44)
-        bar.setStyleSheet(f"background: {CONFIG['color_header_bg']}; border-bottom: 1px solid {CONFIG['color_base']};")
+        bar.setStyleSheet(f"background: {CONFIG['color_ui_header']}; border-bottom: 1px solid {CONFIG['color_ui_base']};")
         layout = QHBoxLayout(bar)
         layout.setContentsMargins(8, 4, 8, 4)
         layout.setSpacing(6)
@@ -1776,7 +1780,7 @@ class MainWindow(QMainWindow):
     def _build_header(self) -> QWidget:
         header = QWidget()
         header.setFixedHeight(80)
-        header.setStyleSheet(f"background: {QColor(CONFIG['color_header_bg']).name()};")
+        header.setStyleSheet(f"background: {QColor(CONFIG['color_ui_header']).name()};")
         layout = QHBoxLayout(header)
         layout.setContentsMargins(16, 8, 16, 8)
 
@@ -1785,11 +1789,11 @@ class MainWindow(QMainWindow):
         left.setSpacing(2)
 
         self.breadcrumb_label = QLabel("⌂")
-        self.breadcrumb_label.setStyleSheet("color: {CONFIG['color_text']}; font-size: 11px;")
+        self.breadcrumb_label.setStyleSheet("color: {CONFIG['color_ui_text']}; font-size: 11px;")
         left.addWidget(self.breadcrumb_label)
 
-        self.title_label = QLabel("New Diagram")
-        self.title_label.setStyleSheet(f"color: {CONFIG['color_text']}; font-size: 20px; font-weight: bold;")
+        self.title_label = QLabel(CONFIG["node_new_diagram_title"])
+        self.title_label.setStyleSheet(f"color: {CONFIG['color_ui_text']}; font-size: 20px; font-weight: bold;")
         left.addWidget(self.title_label)
 
         self.summary_label = QLabel("")
@@ -1813,7 +1817,7 @@ class MainWindow(QMainWindow):
         self.summary_label.setText(summary_html)
         modified_indicator = " *" if self._modified else ""
         file_info = os.path.basename(self.current_filepath) if self.current_filepath else CONFIG["header_no_file"]
-        self.setWindowTitle(f"Hierarchical Diagram Editor — {file_info}{modified_indicator}")
+        self.setWindowTitle(f"{about.__program_name__} — {file_info}{modified_indicator}")
 
     def _update_breadcrumb(self):
         parts = self.nav_manager.get_breadcrumb(self.current_diagram.title)
@@ -1861,7 +1865,7 @@ class MainWindow(QMainWindow):
             elif reply == QMessageBox.Cancel:
                 return
 
-        self.current_diagram = Diagram("New Diagram", "")
+        self.current_diagram = Diagram(CONFIG["node_new_diagram_title"], "")
         self.current_filepath = None
         self.nav_manager.clear()
         self._modified = False
@@ -1970,10 +1974,13 @@ class MainWindow(QMainWindow):
             filepath += ".hdiagram"
 
         # Create new empty diagram
-        new_diagram = Diagram(node.title + " -- Subdiagram", f"Subdiagram of '{node.title}'")
+        new_diagram = Diagram(
+            node.title + CONFIG["node_subdiagram_title_suffix"],
+            CONFIG["node_subdiagram_summary_prefix"] + node.title + CONFIG["node_subdiagram_summary_suffix"]
+        )
         # Add default start/end
-        start = Node(Node.NODE_START, "Start", "", 100, 200)
-        end = Node(Node.NODE_END, "End", "", 500, 200)
+        start = Node(Node.NODE_START, CONFIG["node_default_title_start"], "", 100, 200)
+        end = Node(Node.NODE_END, CONFIG["node_default_title_end"], "", 500, 200)
         new_diagram.add_node(start)
         new_diagram.add_node(end)
 
@@ -2099,17 +2106,17 @@ def main():
     
     # Dark palette base
     palette = QPalette()
-    palette.setColor(QPalette.Window, QColor(CONFIG["color_background"]))
-    palette.setColor(QPalette.WindowText, QColor(CONFIG["color_text"]))
-    palette.setColor(QPalette.Base, QColor(CONFIG["color_base"]))
-    palette.setColor(QPalette.AlternateBase, QColor(CONFIG["color_header_bg"]))
-    palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["color_base"]))
-    palette.setColor(QPalette.ToolTipText, QColor(CONFIG["color_text"]))
-    palette.setColor(QPalette.Text, QColor(CONFIG["color_text"]))
-    palette.setColor(QPalette.Button, QColor(CONFIG["color_base"]))
-    palette.setColor(QPalette.ButtonText, QColor(CONFIG["color_text"]))
-    palette.setColor(QPalette.Highlight, QColor(CONFIG["color_border"]))
-    palette.setColor(QPalette.HighlightedText, QColor(CONFIG["color_highlighted_text"]))
+    palette.setColor(QPalette.Window, QColor(CONFIG["color_ui_background"]))
+    palette.setColor(QPalette.WindowText, QColor(CONFIG["color_ui_text"]))
+    palette.setColor(QPalette.Base, QColor(CONFIG["color_ui_base"]))
+    palette.setColor(QPalette.AlternateBase, QColor(CONFIG["color_ui_header"]))
+    palette.setColor(QPalette.ToolTipBase, QColor(CONFIG["color_ui_base"]))
+    palette.setColor(QPalette.ToolTipText, QColor(CONFIG["color_ui_text"]))
+    palette.setColor(QPalette.Text, QColor(CONFIG["color_ui_text"]))
+    palette.setColor(QPalette.Button, QColor(CONFIG["color_ui_base"]))
+    palette.setColor(QPalette.ButtonText, QColor(CONFIG["color_ui_text"]))
+    palette.setColor(QPalette.Highlight, QColor(CONFIG["color_ui_border"]))
+    palette.setColor(QPalette.HighlightedText, QColor(CONFIG["color_ui_highlighted_text"]))
     app.setPalette(palette)
 
     window = MainWindow()
