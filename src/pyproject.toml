@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hierarchical_diagram_studio"
+version = "0.1.1"
+description = "A desktop application for designing hierarchical graph-based diagrams with linked subdiagrams, manual layout control, and fully customizable node connections."
+readme = "README.md"
+authors = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
+maintainers = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "GPL-3.0-only WITH Classpath-Exception-2.0 OR BSD-3-Clause"
+license-files = ["LICENSE"]
+keywords = ["writing", "translate"]
+dependencies = [
+    "PyQt5",
+    "deep-consultation"
+]
+
+[project.urls]
+"Bug Reports" = "https://github.com/trucomanx/HierarchicalDiagramStudio/issues"
+"Funding" = "https://trucomanx.github.io/en/funding.html"
+"Documentation" = "https://github.com/trucomanx/HierarchicalDiagramStudio/tree/main/doc"
+"Source" = "https://github.com/trucomanx/HierarchicalDiagramStudio"
+
+[project.scripts]
+"hierarchical-diagram-studio" = "hierarchical_diagram_studio.program:main"
+
+[tool.setuptools]
+packages = ["hierarchical_diagram_studio", "hierarchical_diagram_studio.modules"]
+
+[tool.setuptools.package-data]
+"hierarchical_diagram_studio" = ["icons/logo.png"]
