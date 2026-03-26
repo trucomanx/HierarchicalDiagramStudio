@@ -1,11 +1,11 @@
 {
-  "title": "New Diagram",
-  "summary": "este é um diagrama",
+  "title": "Title of diagram",
+  "summary": "This is a summary",
   "nodes": [
     {
       "id": "cf0685d2-3cf6-4db1-865b-049509abbea0",
       "type": "start",
-      "title": "Início",
+      "title": "Start title",
       "summary": "",
       "inputs": [],
       "outputs": [
@@ -21,7 +21,7 @@
     {
       "id": "5d6cbca3-251d-41cd-bfce-43d510540acd",
       "type": "end",
-      "title": "Fim",
+      "title": "End title",
       "summary": "",
       "inputs": [
         "in"
@@ -37,7 +37,7 @@
     {
       "id": "1ac078be-7b71-4c87-9b46-fa9f85d16ab1",
       "type": "normal",
-      "title": "Função",
+      "title": "Function title",
       "summary": "",
       "inputs": [
         "in"
@@ -75,7 +75,7 @@
     {
       "id": "da195418-b860-4bb7-8d15-e95340be0962",
       "type": "normal",
-      "title": "Função",
+      "title": "Function title",
       "summary": "",
       "inputs": [
         "in"
@@ -93,7 +93,7 @@
     {
       "id": "495cd709-00f7-465e-ace1-e25769d56b39",
       "type": "normal",
-      "title": "Função",
+      "title": "Function title",
       "summary": "",
       "inputs": [
         "in"

@@ -144,10 +144,19 @@ DEFAULT_CONTENT={
     # WINDOW
     "window_width": 1024,
     "window_height": 800,
+    "wiew_min_height": 400,
     "port_radius": 6,
     "port_hit_radius": 10,
-    "node_min_width": 140,
-    "node_min_height": 70,
+    "node_default_width": 140,
+    "node_default_height": 70,
+    "node_normal_radius": 8,
+    "node_merge_radius": 8,
+    "node_start_radius": 8,
+    "node_end_radius": 8,
+    "node_fontsize_title": 9,
+    "node_fontsize_summary": 7,
+    "node_fontsize_badge": 7,
+    "node_fontsize_port": 6,
     "grid_size": 20,
     "edge_hit_tolerance": 8,
     
@@ -192,8 +201,8 @@ CONFIG=configure.load_config(CONFIG_PATH)
 
 PORT_RADIUS = CONFIG["port_radius"]
 PORT_HIT_RADIUS = CONFIG["port_hit_radius"]
-NODE_MIN_WIDTH = CONFIG["node_min_width"]
-NODE_MIN_HEIGHT = CONFIG["node_min_height"]
+NODE_DEFAULT_WIDTH = CONFIG["node_default_width"]
+NODE_DEFAULT_HEIGHT = CONFIG["node_default_height"]
 GRID_SIZE = CONFIG["grid_size"]
 EDGE_HIT_TOLERANCE = CONFIG["edge_hit_tolerance"]
 
@@ -398,66 +407,28 @@ class NavigationManager:
 
 def get_port_positions(node: Node, rect_width: float, rect_height: float):
     """
-    Returns dict with port positions relative to node center (0,0).
-    Accounts for rotation.
+    Returns port positions relative to node center (0,0).
+    Inputs on left edge, outputs on right edge.
+    No manual rotation needed: the QGraphicsItem itself is rotated via setRotation(),
+    so child port items rotate automatically with it.
     """
-    rot = node.rotation % 360
-    # Base: inputs on left, outputs on right
-    # After rotation, positions transform accordingly
-
     n_in = len(node.inputs)
     n_out = len(node.outputs)
 
     hw = rect_width / 2
     hh = rect_height / 2
 
-    # After 90/270 rotation the visual width and height swap
-    if rot in (90, 270):
-        vis_hw, vis_hh = hh, hw
-    else:
-        vis_hw, vis_hh = hw, hh
-
-    # For merge nodes, ports attach to the narrow bar edges.
-    # bar_w tracks 38% of the visual width so it always matches the narrow side.
-    is_merge = node.type == "merge"
-    if is_merge:
-        bar_w = max(vis_hw * 0.38, 18)
-        port_x_in  = -bar_w
-        port_x_out =  bar_w
-    else:
-        port_x_in  = -hw
-        port_x_out =  hw
-
     input_positions = []
     for i in range(n_in):
-        if n_in == 1:
-            t = 0.5
-        else:
-            t = (i + 1) / (n_in + 1)
-        # left side
-        px = port_x_in
-        py = -hh + t * rect_height
-        input_positions.append(QPointF(px, py))
+        t = 0.5 if n_in == 1 else (i + 1) / (n_in + 1)
+        input_positions.append(QPointF(-hw, -hh + t * rect_height))
 
     output_positions = []
     for i in range(n_out):
-        if n_out == 1:
-            t = 0.5
-        else:
-            t = (i + 1) / (n_out + 1)
-        # right side
-        px = port_x_out
-        py = -hh + t * rect_height
-        output_positions.append(QPointF(px, py))
+        t = 0.5 if n_out == 1 else (i + 1) / (n_out + 1)
+        output_positions.append(QPointF(hw, -hh + t * rect_height))
 
-    # Apply rotation transform
-    transform = QTransform()
-    transform.rotate(rot)
-
-    rotated_inputs = [transform.map(p) for p in input_positions]
-    rotated_outputs = [transform.map(p) for p in output_positions]
-
-    return rotated_inputs, rotated_outputs
+    return input_positions, output_positions
 
 
 class GraphicsPortItem(QGraphicsEllipseItem):
@@ -514,17 +485,18 @@ class GraphicsNodeItem(QGraphicsItem):
         self.setAcceptHoverEvents(True)
         self.setZValue(1)
 
-        # Merge nodes get a narrower, taller default footprint
+        # Merge nodes are narrower than normal nodes
         if node.type == Node.NODE_MERGE:
-            self.width = NODE_MIN_WIDTH
-            self.height = NODE_MIN_HEIGHT * 2  # tall bar
+            self.width = int(NODE_DEFAULT_WIDTH * 0.50)
+            self.height = int(NODE_DEFAULT_HEIGHT * 2.0)
         else:
-            self.width = NODE_MIN_WIDTH
-            self.height = NODE_MIN_HEIGHT
+            self.width = NODE_DEFAULT_WIDTH
+            self.height = NODE_DEFAULT_HEIGHT
         self._hovered = False
         self._port_items: List[GraphicsPortItem] = []
 
         self.setPos(node.position[0], node.position[1])
+        self.setRotation(node.rotation)
         self._rebuild_ports()
 
     def _rebuild_ports(self):
@@ -573,52 +545,35 @@ class GraphicsNodeItem(QGraphicsItem):
     def boundingRect(self) -> QRectF:
         hw = self.width / 2
         hh = self.height / 2
-        # Account for rotation
-        rot = self.node.rotation % 360
-        if rot in (90, 270):
-            hw, hh = hh, hw
         return QRectF(-hw - PORT_RADIUS - 2, -hh - PORT_RADIUS - 2,
                       hw * 2 + (PORT_RADIUS + 2) * 2,
                       hh * 2 + (PORT_RADIUS + 2) * 2)
 
     def _get_shape_path(self) -> QPainterPath:
-        rot = self.node.rotation % 360
-        if rot in (90, 270):
-            hw, hh = self.height / 2, self.width / 2
-        else:
-            hw, hh = self.width / 2, self.height / 2
+        hw = self.width / 2
+        hh = self.height / 2
 
         path = QPainterPath()
+        rect = QRectF(-hw, -hh, hw * 2, hh * 2)
         if self.node.type == Node.NODE_START:
-            # Rounded left, flat right - arrow pointing right
-            rect = QRectF(-hw, -hh, hw * 2, hh * 2)
-            path.addRoundedRect(rect, hh * 0.8, hh * 0.8)
+            path.addRoundedRect(rect, CONFIG["node_start_radius"], CONFIG["node_start_radius"])
         elif self.node.type == Node.NODE_END:
-            # Flat left, pointed right - target shape
-            rect = QRectF(-hw, -hh, hw * 2, hh * 2)
-            path.addRoundedRect(rect, 8, 8)
+            path.addRoundedRect(rect, CONFIG["node_end_radius"], CONFIG["node_end_radius"])
         elif self.node.type == Node.NODE_MERGE:
-            # Vertical bar — narrow width, tall height, slightly rounded corners
-            bar_w = max(hw * 0.38, 18)
-            bar_h = hh
-            rect = QRectF(-bar_w, -bar_h, bar_w * 2, bar_h * 2)
-            path.addRoundedRect(rect, 6, 6)
+            path.addRoundedRect(rect, CONFIG["node_merge_radius"], CONFIG["node_merge_radius"])
         else:
-            rect = QRectF(-hw, -hh, hw * 2, hh * 2)
-            path.addRoundedRect(rect, 10, 10)
+            path.addRoundedRect(rect, CONFIG["node_normal_radius"], CONFIG["node_normal_radius"])
         return path
 
     def paint(self, painter: QPainter, option, widget=None):
         painter.setRenderHint(QPainter.Antialiasing)
 
-        rot = self.node.rotation % 360
-        if rot in (90, 270):
-            hw, hh = self.height / 2, self.width / 2
-        else:
-            hw, hh = self.width / 2, self.height / 2
+        hw = self.width / 2
+        hh = self.height / 2
 
         # Colors based on type
         t = self.node.type
+        
         if t == Node.NODE_NORMAL:
             bg = QColor(CONFIG["color_normal_bg"])
             border = QColor(CONFIG["color_normal_border"])
@@ -659,23 +614,31 @@ class GraphicsNodeItem(QGraphicsItem):
         if self.node.subdiagram and t == Node.NODE_NORMAL:
             painter.setPen(QPen(QColor(CONFIG["color_subdiagram"]), 1.5, Qt.DashLine))
             painter.setBrush(Qt.NoBrush)
-            rect_inner = QRectF(-hw + 4, -hh + 4, hw * 2 - 8, hh * 2 - 8)
-            painter.drawRoundedRect(rect_inner, 7, 7)
+            rect_inner = QRectF(-hw + 4, -hh + 4, (hw - 4) * 2, (hh - 4) * 2)
 
+            if t == Node.NODE_START:
+                painter.drawRoundedRect(rect_inner, CONFIG["node_start_radius"], CONFIG["node_start_radius"])
+            elif t == Node.NODE_END:
+                painter.drawRoundedRect(rect_inner, CONFIG["node_end_radius"], CONFIG["node_end_radius"])
+            elif t == Node.NODE_MERGE:
+                painter.drawRoundedRect(rect_inner, CONFIG["node_merge_radius"], CONFIG["node_merge_radius"])
+            else:
+                painter.drawRoundedRect(rect_inner, CONFIG["node_normal_radius"], CONFIG["node_normal_radius"])
+        
         # Title text
         painter.setPen(QPen(title_color))
-        font = QFont("Segoe UI", 9, QFont.Bold)
+        font = QFont("Segoe UI", CONFIG["node_fontsize_title"], QFont.Bold)
         painter.setFont(font)
-        title_rect = QRectF(-hw + 8, -hh + 5, hw * 2 - 16, hh - 5)
+        title_rect = QRectF(-hw + 8, -hh + 5, (hw - 8) * 2, hh - 5)
         painter.drawText(title_rect, Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap,
                          self.node.title)
 
         # Summary text (only for normal)
         if self.node.type == Node.NODE_NORMAL and self.node.summary:
             painter.setPen(QPen(QColor(CONFIG["color_ui_text"]).darker(110)))
-            font2 = QFont("Segoe UI", 7)
+            font2 = QFont("Segoe UI", CONFIG["node_fontsize_summary"])
             painter.setFont(font2)
-            summary_rect = QRectF(-hw + 8, 2, hw * 2 - 16, hh - 8)
+            summary_rect = QRectF(-hw + 8, 2, (hw - 8) * 2, hh - 8)
             painter.drawText(summary_rect, Qt.AlignHCenter | Qt.AlignTop | Qt.TextWordWrap,
                              self.node.summary)
 
@@ -690,14 +653,14 @@ class GraphicsNodeItem(QGraphicsItem):
             type_text = "■"
 
         painter.setPen(QPen(title_color.darker(110)))
-        font3 = QFont("Segoe UI", 7)
+        font3 = QFont("Segoe UI", CONFIG["node_fontsize_badge"])
         painter.setFont(font3)
         badge_rect = QRectF(hw - 26, hh - 16, 22, 12)
         painter.drawText(badge_rect, Qt.AlignRight | Qt.AlignBottom, type_text)
 
         # Port labels
         input_pos, output_pos = get_port_positions(self.node, self.width, self.height)
-        font4 = QFont("Segoe UI", 6)
+        font4 = QFont("Segoe UI", CONFIG["node_fontsize_port"])
         painter.setFont(font4)
         for i, pos in enumerate(input_pos):
             if i < len(self.node.inputs):
@@ -821,6 +784,7 @@ class GraphicsNodeItem(QGraphicsItem):
 
     def _rotate(self):
         self.node.rotation = (self.node.rotation + 90) % 360
+        self.setRotation(self.node.rotation)
         self._rebuild_ports()
         self.prepareGeometryChange()
         self.update()
@@ -1645,7 +1609,7 @@ class MainWindow(QMainWindow):
 
         # Graphics view
         self.view = DiagramView()
-        self.view.setMinimumHeight(400)
+        self.view.setMinimumHeight(CONFIG["wiew_min_height"])
         main_layout.addWidget(self.view, 1)
 
         # Status bar
