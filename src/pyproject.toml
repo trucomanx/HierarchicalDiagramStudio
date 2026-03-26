@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hierarchical_diagram_studio"
-version = "0.1.1"
+version = "0.1.2"
 description = "A desktop application for designing hierarchical graph-based diagrams with linked subdiagrams, manual layout control, and fully customizable node connections."
 readme = "README.md"
 authors = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
@@ -16,10 +16,9 @@ classifiers = [
 ]
 license = "GPL-3.0-only WITH Classpath-Exception-2.0 OR BSD-3-Clause"
 license-files = ["LICENSE"]
-keywords = ["writing", "translate"]
+keywords = ["diagram", "editor"]
 dependencies = [
-    "PyQt5",
-    "deep-consultation"
+    "PyQt5"
 ]
 
 [project.urls]
