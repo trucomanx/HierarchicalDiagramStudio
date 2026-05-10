@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hierarchical_diagram_studio"
-version = "0.1.2"
+version = "0.1.3"
 description = "A desktop application for designing hierarchical graph-based diagrams with linked subdiagrams, manual layout control, and fully customizable node connections."
 readme = "README.md"
 authors = [{name = "Fernando Pujaico Rivera", email = "fernando.pujaico.rivera@gmail.com"}]
@@ -34,4 +34,4 @@ dependencies = [
 packages = ["hierarchical_diagram_studio", "hierarchical_diagram_studio.modules"]
 
 [tool.setuptools.package-data]
-"hierarchical_diagram_studio" = ["icons/logo.png"]
+"hierarchical_diagram_studio" = ["icons/*.png"]

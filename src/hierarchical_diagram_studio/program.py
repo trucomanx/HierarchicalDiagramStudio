@@ -1638,30 +1638,70 @@ class MainWindow(QMainWindow):
         layout.setSpacing(6)
 
         def btn(theme_icon: str, fallback_text: str, tip: str, cb) -> QPushButton:
+
             b = QPushButton(fallback_text)
+
+            # tenta carregar do tema
             icon = QIcon.fromTheme(theme_icon)
+
+            # se não existir no tema, tenta como arquivo
+            if icon.isNull():
+
+                if os.path.exists(theme_icon):
+                    icon = QIcon(theme_icon)
+
+            # aplica se encontrou
             if not icon.isNull():
                 b.setIcon(icon)
-                b.setText(fallback_text)
+
             b.setToolTip(tip)
             b.clicked.connect(cb)
             b.setFixedHeight(32)
             b.setIconSize(QSize(16, 16))
+
             return b
 
-        self.btn_new     = btn("document-new",      CONFIG["toolbar_new"],     CONFIG["toolbar_new_tooltip"],     self.action_new)
-        self.btn_open    = btn("document-open",     CONFIG["toolbar_open"],    CONFIG["toolbar_open_tooltip"],    self.action_open)
-        self.btn_save    = btn("document-save",     CONFIG["toolbar_save"],    CONFIG["toolbar_save_tooltip"],    self.action_save)
-        self.btn_save_as = btn("document-save-as",  CONFIG["toolbar_save_as"], CONFIG["toolbar_save_as_tooltip"], self.action_save_as)
-        self.btn_export_svg = btn("image-x-generic", CONFIG["toolbar_export_svg"], CONFIG["toolbar_export_svg_tooltip"], self.action_export_svg)
-        self.btn_export_dot = btn("text-x-generic",  CONFIG["toolbar_export_dot"], CONFIG["toolbar_export_dot_tooltip"], self.action_export_dot)
-
+        self.btn_new     = btn( resource_path("icons", "new_file.png"), 
+                                CONFIG["toolbar_new"], 
+                                CONFIG["toolbar_new_tooltip"], 
+                                self.action_new)
         layout.addWidget(self.btn_new)
+        
+                                
+        self.btn_open    = btn( resource_path("icons", "open_file.png"), 
+                                CONFIG["toolbar_open"], 
+                                CONFIG["toolbar_open_tooltip"], 
+                                self.action_open )
         layout.addWidget(self.btn_open)
+        
+        
+        self.btn_save    = btn( resource_path("icons", "download.png"), 
+                                CONFIG["toolbar_save"], 
+                                CONFIG["toolbar_save_tooltip"], 
+                                self.action_save )
         layout.addWidget(self.btn_save)
+        
+                                
+        self.btn_save_as = btn( resource_path("icons", "download.png"), 
+                                CONFIG["toolbar_save_as"], 
+                                CONFIG["toolbar_save_as_tooltip"], 
+                                self.action_save_as )
         layout.addWidget(self.btn_save_as)
+        
+        
+        self.btn_export_svg = btn(  resource_path("icons", "image.png"), 
+                                    CONFIG["toolbar_export_svg"], 
+                                    CONFIG["toolbar_export_svg_tooltip"], 
+                                    self.action_export_svg)
         layout.addWidget(self.btn_export_svg)
+        
+        
+        self.btn_export_dot = btn(  resource_path("icons", "file.png"), 
+                                    CONFIG["toolbar_export_dot"], 
+                                    CONFIG["toolbar_export_dot_tooltip"], 
+                                    self.action_export_dot)
         layout.addWidget(self.btn_export_dot)
+        
 
         # Separator
         sep = QWidget()
@@ -1670,7 +1710,10 @@ class MainWindow(QMainWindow):
         sep.setStyleSheet("background: {CONFIG['color_ui_neutral']};")
         layout.addWidget(sep)
 
-        self.btn_back = btn("go-previous", CONFIG["toolbar_back"], CONFIG["toolbar_back_tooltip"], self.action_back)
+        self.btn_back = btn("go-previous", 
+                        CONFIG["toolbar_back"], 
+                        CONFIG["toolbar_back_tooltip"], 
+                        self.action_back)
         self.btn_back.setEnabled(False)
         layout.addWidget(self.btn_back)
 
@@ -1697,30 +1740,24 @@ class MainWindow(QMainWindow):
         layout.addWidget(btn_fit)
 
         # Configure
-        btn_configure = QPushButton(CONFIG["toolbar_configure"])
-        configure_icon = QIcon.fromTheme("document-properties")
-        if not configure_icon.isNull():
-            btn_configure.setIcon(configure_icon)
-        btn_configure.setFixedHeight(32)
-        btn_configure.clicked.connect(lambda: self.open_configure_editor())
+        btn_configure = btn(resource_path("icons", "text-configure.png"),  
+                            CONFIG["toolbar_configure"], 
+                            CONFIG["toolbar_configure_tooltip"], 
+                            self.open_configure_editor )
         layout.addWidget(btn_configure)
 
         # Coffee
-        btn_coffee = QPushButton(CONFIG["toolbar_coffee"])
-        coffee_icon = QIcon.fromTheme("emblem-favorite")
-        if not coffee_icon.isNull():
-            btn_coffee.setIcon(coffee_icon)
-        btn_coffee.setFixedHeight(32)
-        btn_coffee.clicked.connect(lambda: self.on_coffee_action_click())
+        btn_coffee = btn(   resource_path("icons", "emote-love.png"),  
+                            CONFIG["toolbar_coffee"], 
+                            CONFIG["toolbar_coffee_tooltip"], 
+                            self.on_coffee_action_click )
         layout.addWidget(btn_coffee)
 
         # About
-        btn_about = QPushButton(CONFIG["toolbar_about"])
-        about_icon = QIcon.fromTheme("help-about")
-        if not about_icon.isNull():
-            btn_about.setIcon(about_icon)
-        btn_about.setFixedHeight(32)
-        btn_about.clicked.connect(lambda: self.open_about())
+        btn_about = btn(    resource_path("icons", "status_help.png"),  
+                            CONFIG["toolbar_about"], 
+                            CONFIG["toolbar_about_tooltip"], 
+                            self.open_about )
         layout.addWidget(btn_about)
 
         # Keyboard shortcuts

@@ -1,6 +1,6 @@
 # about.py
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __package__ = "hierarchical_diagram_studio"
 __program_name__ = "hierarchical-diagram-studio"
 __author__ = "Fernando Pujaico Rivera"

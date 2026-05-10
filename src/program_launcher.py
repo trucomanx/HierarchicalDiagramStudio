@@ -25,6 +25,13 @@ python -m PyInstaller --onefile --windowed --name hierarchical_diagram_studio --
 
 '''
 
+import os
+from PyQt5.QtCore import QLibraryInfo
+
+os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = QLibraryInfo.location(
+    QLibraryInfo.PluginsPath
+)
+
 from hierarchical_diagram_studio.program import main
 
 if __name__ == "__main__":
