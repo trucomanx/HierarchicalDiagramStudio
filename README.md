@@ -24,7 +24,7 @@ hierarchical-diagram-studio
 ```
 ## 2. More information
 
-If you want more information go to [doc](https://github.com/trucomanx/HierarchicalDiagramStudio/blob/main/doc) directory
+If you want more information go to [doc](https://github.com/trucomanx-desktop/HierarchicalDiagramStudio/blob/main/doc) directory
 
 ## 3. Buy me a coffee
 

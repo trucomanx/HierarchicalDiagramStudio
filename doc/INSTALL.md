@@ -21,7 +21,7 @@ hierarchical-diagram-studio
 Installing `hierarchical-diagram-studio` program
 
 ```bash
-git clone https://github.com/trucomanx/HierarchicalDiagramStudio.git
+git clone https://github.com/trucomanx-desktop/HierarchicalDiagramStudio.git
 cd HierarchicalDiagramStudio
 pip install -r requirements.txt
 cd src
